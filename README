@@ -1,0 +1,22 @@
+Codename Hellfish
+=================
+OpenBSD source code from cvs put into git.
+Uploaded for my own use.
+If you want to use it go ahead, but don't expect support.
+OpenBSD developers use cvs, don't bother them with git related stuff.
+The hellfish repository wraps 3 submodules for src, ports and xenocara and a bunch of related stuff.
+
+READ
+* http://www.openbsd.org/faq/index.html
+
+BRANCHES
+* master: follows OpenBSD-current
+* hellfish: experimental mods
+* all other: testing/staging branches
+
+REQUIREMENTS
+* openbsd current or at least a recent snapshot
+* cvsync
+* git
+* 4GB of space for $CVSROOT
+* 3GB of space for $HFDIR
