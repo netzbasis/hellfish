@@ -65,7 +65,7 @@ hf__add_to_git() {
 	  if [ $? -gt 1 ]; then exit 4; fi
 	git add -A :/ >> $CVSYNC_LOG_FILE
 	  if [ $? -gt 1 ]; then exit 4; fi
-	git commit -m "sync with openbsd-current"
+	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
 	  if [ $? -gt 1 ]; then exit 4; fi
 	if [ "x$1" == "x-p" ]
 	then
