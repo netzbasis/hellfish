@@ -1,0 +1,9 @@
+[submodule "src"]
+	path = src
+	url = https://github.com/netzbasis/openbsd-src.git
+[submodule "ports"]
+	path = ports
+	url = https://github.com/netzbasis/openbsd-ports.git
+[submodule "xenocara"]
+	path = xenocara
+	url = https://github.com/netzbasis/openbsd-xenocara.git
