@@ -7,7 +7,6 @@ DOTS_RUNNING_PID=0
 
 helper_start_dots() {
 	/bin/sh <<EOF &
-echo -n " "
 while [ 1 -eq 1 ]
 do
 sleep 5
@@ -22,6 +21,7 @@ helper_stop_dots() {
 	if [ $DOTS_RUNNING_PID -gt 0 ]
 	then
 		kill $DOTS_RUNNING_PID
+		printf "\n"
 	fi
 
 	DOTS_RUNNING_PID=0
@@ -44,41 +44,47 @@ hf_usage() {
 
 hf__clear_git_workdir() {
 	cd "$1"
-	  if [ $? -gt 1 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; then exit 3; fi
 	git checkout master >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 1 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; then exit 3; fi
 	git pull 
-	  if [ $? -gt 1 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; then exit 3; fi
+	helper_start_dots
 	rm -rf *
-	  if [ $? -gt 1 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; then exit 3; fi
+	helper_stop_dots
 	cd "$HFDIR"
-	  if [ $? -gt 1 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; then exit 3; fi
 }
 
 hf__cvs_co() {
+	helper_start_dots
 	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 1 ]; then exit 5; fi
+	  if [ $? -gt 0 ]; then exit 5; fi
+	helper_stop_dots
 }
 
 hf__add_to_git() {
 	cd "$1"
-	  if [ $? -gt 1 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; then exit 4; fi
 	git add -A :/ >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 1 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; then exit 4; fi
 	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 1 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; then exit 4; fi
 	if [ "x$2" == "x-p" ]
 	then
 		git push
-		  if [ $? -gt 1 ]; then exit 4; fi
+		  if [ $? -gt 0 ]; then exit 4; fi
 	fi
 	cd "$HFDIR"
 }
 
 hf_cvsync() {
 	echo "[1/4] cvsync repo"
+	helper_start_dots
 	cvsync -c "$CVSYNCCONF" >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 1 ]; then exit 2; fi
+	  if [ $? -gt 0 ]; then exit 2; fi
+	helper_stop_dots
 
 	echo "[2/4] clear git working directories"
 	hf__clear_git_workdir "$BSDSRCDIR"
