@@ -30,7 +30,7 @@ helper_stop_dots() {
 ### hellfish functions ###
 hf_main() {
 	case "$1" in
-		cvsync|cs) hf_cvsync "$1";;
+		cvsync|cs) hf_cvsync "$2";;
 		*) hf_usage;;
 	esac
 }
@@ -67,9 +67,9 @@ hf__add_to_git() {
 	  if [ $? -gt 1 ]; then exit 4; fi
 	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
 	  if [ $? -gt 1 ]; then exit 4; fi
-	if [ "x$1" == "x-p" ]
+	if [ "x$2" == "x-p" ]
 	then
-		git push master
+		git push
 		  if [ $? -gt 1 ]; then exit 4; fi
 	fi
 	cd "$HFDIR"
