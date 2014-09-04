@@ -34,6 +34,7 @@ hf_main() {
 		pull|pu) hf_pull;;
 		kernel|ke) hf_make_kernel "$2" "$3";;
 		build|bu) hf_make_build;;
+		xenocara|xe) hf_make_xenocara;;
 		*) hf_usage;;
 	esac
 }
@@ -47,6 +48,22 @@ hf_usage() {
 	echo "kernel (ke): build kernel"
 	printf "\t[-i] install\n\t[-r] reboot\n"
 	echo "build (bu): build userland"
+	echo "xenocara (xe): build xenocara"
+}
+
+hf_make_xenocara() {
+	cd ${BSDXENOCARADIR}
+	  if [ $? -gt 0 ]; then exit 1; fi
+	rm -rf ${BSDXOBJDIR}/*
+	  if [ $? -gt 0 ]; then exit 2; fi
+	make clean
+	  if [ $? -gt 0 ]; then exit 3; fi
+	make obj
+	  if [ $? -gt 0 ]; then exit 4; fi
+	make bootstrap
+	  if [ $? -gt 0 ]; then exit 5; fi
+	make build 2>> ${LOG_FILE}
+	  if [ $? -gt 0 ]; then exit 8; fi
 }
 
 hf_make_build() {
