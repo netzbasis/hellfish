@@ -32,6 +32,7 @@ hf_main() {
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
 		pull|pu) hf_pull;;
+		kernel|ke) hf_make_kernel "$2" "$3";;
 		*) hf_usage;;
 	esac
 }
@@ -42,6 +43,33 @@ hf_usage() {
 	echo "cvsync (cs): sync cvs and git"
 	printf "\t[-p] push git repos after sync\n"
 	echo "pull (pu): pull all git repos"
+	echo "kernel (ke): build kernel"
+	printf "\t[-i] install\n\t[-r] reboot\n"
+}
+
+hf_make_kernel() {
+	cd ${BSDSRCDIR}/sys/arch/${ARCH}/conf
+	  if [ $? -gt 0 ]; then exit 1; fi
+	config $KERNEL
+	  if [ $? -gt 0 ]; then exit 2; fi
+	cd ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL
+	  if [ $? -gt 0 ]; then exit 3; fi
+	make clean
+	  if [ $? -gt 0 ]; then exit 4; fi
+	make 
+	  if [ $? -gt 0 ]; then exit 5; fi
+
+	if [ "x$1" = "x-i" ]
+	then
+		make install
+		  if [ $? -gt 0 ]; then exit 6; fi
+	fi
+	
+	if [ "x$2" = "x-r" ]
+	then
+		reboot
+		  if [ $? -gt 0 ]; then exit 7; fi
+	fi
 }
 
 hf_pull() {
@@ -57,8 +85,11 @@ hf_pull() {
 
 hf__pull() {
 	cd "$1"
+	  if [ $? -gt 0 ]; then exit 6; fi
 	git pull
+	  if [ $? -gt 0 ]; then exit 6; fi
 	cd "$HFDIR"
+	  if [ $? -gt 0 ]; then exit 6; fi
 }
 
 hf__clear_git_workdir() {
