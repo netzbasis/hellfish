@@ -33,6 +33,7 @@ hf_main() {
 		cvsync|cs) hf_cvsync "$2";;
 		pull|pu) hf_pull;;
 		kernel|ke) hf_make_kernel "$2" "$3";;
+		build|bu) hf_make_build;;
 		*) hf_usage;;
 	esac
 }
@@ -45,6 +46,26 @@ hf_usage() {
 	echo "pull (pu): pull all git repos"
 	echo "kernel (ke): build kernel"
 	printf "\t[-i] install\n\t[-r] reboot\n"
+	echo "build (bu): build userland"
+}
+
+hf_make_build() {
+	cd ${BSDSRCDIR}
+	  if [ $? -gt 0 ]; then exit 1; fi
+	rm -rf ${BSDOBJDIR}/*
+	  if [ $? -gt 0 ]; then exit 2; fi
+	make clean
+	  if [ $? -gt 0 ]; then exit 3; fi
+	make obj
+	  if [ $? -gt 0 ]; then exit 4; fi
+	cd ${BSDSRCDIR}/etc
+	  if [ $? -gt 0 ]; then exit 5; fi
+	env DESTDIR=/ make distrib-dirs
+	  if [ $? -gt 0 ]; then exit 6; fi
+	cd ${BSDSRCDIR}
+	  if [ $? -gt 0 ]; then exit 7; fi
+	make build 2>> ${LOG_FILE}
+	  if [ $? -gt 0 ]; then exit 8; fi
 }
 
 hf_make_kernel() {
