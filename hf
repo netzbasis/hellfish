@@ -33,7 +33,7 @@ hf_main() {
 		cvsync|cs) hf_cvsync "$2";;
 		pull|pu) hf_pull;;
 		kernel|ke) hf_make_kernel "$2" "$3";;
-		build|bu) hf_make_build;;
+		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
 		*) hf_usage;;
 	esac
@@ -47,7 +47,7 @@ hf_usage() {
 	echo "pull (pu): pull all git repos"
 	echo "kernel (ke): build kernel"
 	printf "\t[-i] install\n\t[-r] reboot\n"
-	echo "build (bu): build userland"
+	echo "userland (us): build userland"
 	echo "xenocara (xe): build xenocara"
 }
 
