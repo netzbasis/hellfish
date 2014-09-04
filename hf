@@ -31,7 +31,8 @@ helper_stop_dots() {
 hf_main() {
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
-		pull|pu) hf_pull;;
+		pull) hf_pull;;
+		push) hf_push;;
 		kernel|ke) hf_make_kernel "$2" "$3";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
@@ -44,7 +45,8 @@ hf_usage() {
 	echo "available commands (aliases)"
 	echo "cvsync (cs): sync cvs and git"
 	printf "\t[-p] push git repos after sync\n"
-	echo "pull (pu): pull all git repos"
+	echo "pull: pull all git repos"
+	echo "push: push all git repos"
 	echo "kernel (ke): build kernel"
 	printf "\t[-i] install\n\t[-r] reboot\n"
 	echo "userland (us): build userland"
@@ -110,6 +112,17 @@ hf_make_kernel() {
 	fi
 }
 
+hf_push() {
+	echo "[1/4] $SRCNAME"
+	hf__push "$SRCNAME"
+	echo "[2/4] $PORTSNAME"
+	hf__push "$PORTSNAME"
+	echo "[3/4] $XENOCARANAME"
+	hf__push "$XENOCARANAME"
+	echo "[4/4] hellfish"
+	hf__push "./"
+}
+
 hf_pull() {
 	echo "[1/4] hellfish"
 	hf__pull "./"
@@ -119,6 +132,15 @@ hf_pull() {
 	hf__pull "$PORTSNAME"
 	echo "[4/4] $XENOCARANAME"
 	hf__pull "$XENOCARANAME"
+}
+
+hf__push() {
+	cd "$1"
+	  if [ $? -gt 0 ]; then exit 6; fi
+	git push
+	  if [ $? -gt 0 ]; then exit 6; fi
+	cd "$HFDIR"
+	  if [ $? -gt 0 ]; then exit 6; fi
 }
 
 hf__pull() {
