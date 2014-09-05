@@ -6,6 +6,7 @@
 DOTS_RUNNING_PID=0
 
 helper_start_dots() {
+	helper_stop_dots
 	/bin/sh <<EOF &
 while [ 1 -eq 1 ]
 do
