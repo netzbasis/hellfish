@@ -146,6 +146,8 @@ hf__push() {
 hf__pull() {
 	cd "$1"
 	  if [ $? -gt 0 ]; then exit 6; fi
+	git checkout master
+	  if [ $? -gt 0 ]; then exit 6; fi
 	git pull
 	  if [ $? -gt 0 ]; then exit 6; fi
 	cd "$HFDIR"
