@@ -56,60 +56,60 @@ hf_usage() {
 
 hf_make_xenocara() {
 	cd ${BSDXENOCARADIR}
-	  if [ $? -gt 0 ]; then exit 1; fi
+	  if [ $? -gt 0 ]; hf_error 1; fi
 	rm -rf ${BSDXOBJDIR}/*
-	  if [ $? -gt 0 ]; then exit 2; fi
+	  if [ $? -gt 0 ]; hf_error 2; fi
 	make clean
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	make obj
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	make bootstrap
-	  if [ $? -gt 0 ]; then exit 5; fi
+	  if [ $? -gt 0 ]; hf_error 5; fi
 	make build 2>> ${LOG_FILE}
-	  if [ $? -gt 0 ]; then exit 8; fi
+	  if [ $? -gt 0 ]; hf_error 8; fi
 }
 
 hf_make_build() {
 	cd ${BSDSRCDIR}
-	  if [ $? -gt 0 ]; then exit 1; fi
+	  if [ $? -gt 0 ]; hf_error 1; fi
 	rm -rf ${BSDOBJDIR}/*
-	  if [ $? -gt 0 ]; then exit 2; fi
+	  if [ $? -gt 0 ]; hf_error 2; fi
 	make clean
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	make obj
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	cd ${BSDSRCDIR}/etc
-	  if [ $? -gt 0 ]; then exit 5; fi
+	  if [ $? -gt 0 ]; hf_error 5; fi
 	env DESTDIR=/ make distrib-dirs
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	cd ${BSDSRCDIR}
-	  if [ $? -gt 0 ]; then exit 7; fi
+	  if [ $? -gt 0 ]; hf_error 7; fi
 	make build 2>> ${LOG_FILE}
-	  if [ $? -gt 0 ]; then exit 8; fi
+	  if [ $? -gt 0 ]; hf_error 8; fi
 }
 
 hf_make_kernel() {
 	cd ${BSDSRCDIR}/sys/arch/${ARCH}/conf
-	  if [ $? -gt 0 ]; then exit 1; fi
+	  if [ $? -gt 0 ]; hf_error 1; fi
 	config $KERNEL
-	  if [ $? -gt 0 ]; then exit 2; fi
+	  if [ $? -gt 0 ]; hf_error 2; fi
 	cd ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	make clean
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	make 
-	  if [ $? -gt 0 ]; then exit 5; fi
+	  if [ $? -gt 0 ]; hf_error 5; fi
 
 	if [ "x$1" = "x-i" ]
 	then
 		make install
-		  if [ $? -gt 0 ]; then exit 6; fi
+		  if [ $? -gt 0 ]; hf_error 6; fi
 	fi
 	
 	if [ "x$2" = "x-r" ]
 	then
 		reboot
-		  if [ $? -gt 0 ]; then exit 7; fi
+		  if [ $? -gt 0 ]; hf_error 7; fi
 	fi
 }
 
@@ -137,57 +137,57 @@ hf_pull() {
 
 hf__push() {
 	cd "$1"
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	git push
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 }
 
 hf__pull() {
 	cd "$1"
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	git checkout master
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	git pull
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then exit 6; fi
+	  if [ $? -gt 0 ]; hf_error 6; fi
 }
 
 hf__clear_git_workdir() {
 	cd "$1"
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	git checkout master >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	git pull 
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	helper_start_dots
 	rm -rf *
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 	helper_stop_dots
 	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then exit 3; fi
+	  if [ $? -gt 0 ]; hf_error 3; fi
 }
 
 hf__cvs_co() {
 	helper_start_dots
 	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 0 ]; then exit 5; fi
+	  if [ $? -gt 0 ]; hf_error 5; fi
 	helper_stop_dots
 }
 
 hf__add_to_git() {
 	cd "$1"
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	git add -A :/ >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 0 ]; then exit 4; fi
+	  if [ $? -gt 0 ]; hf_error 4; fi
 	if [ "x$2" == "x-p" ]
 	then
 		git push
-		  if [ $? -gt 0 ]; then exit 4; fi
+		  if [ $? -gt 0 ]; hf_error 4; fi
 	fi
 	cd "$HFDIR"
 }
@@ -196,7 +196,7 @@ hf_cvsync() {
 	echo "[1/4] cvsync repo"
 	helper_start_dots
 	cvsync -c "$CVSYNCCONF" >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then exit 2; fi
+	  if [ $? -gt 0 ]; hf_error 2; fi
 	helper_stop_dots
 
 	echo "[2/4] clear git working directories"
@@ -215,6 +215,12 @@ hf_cvsync() {
 	hf__add_to_git "$BSDXENOCARADIR" "$1"
 
 	rm $CVSYNC_LOG_FILE
+}
+
+hf_error() {
+	helper_stop_dots
+	echo "ERROR"
+	exit $1
 }
 
 ### main ###
