@@ -1,5 +1,6 @@
 #!/bin/sh
 
+. ./files/scripts/DebugPrint.sh
 . ./files/conf/hf.conf
 
 ### helper functions ###
@@ -30,6 +31,7 @@ helper_stop_dots() {
 
 ### hellfish functions ###
 hf_main() {
+	dpush "main"
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
 		pull) hf_pull;;
@@ -39,9 +41,11 @@ hf_main() {
 		xenocara|xe) hf_make_xenocara;;
 		*) hf_usage;;
 	esac
+	dpop
 }
 
 hf_usage() {
+	dpush "usage"
 	echo "usage: $0 <command> [option]"
 	echo "available commands (aliases)"
 	echo "cvsync (cs): sync cvs and git"
@@ -52,9 +56,11 @@ hf_usage() {
 	printf "\t[-i] install\n\t[-r] reboot\n"
 	echo "userland (us): build userland"
 	echo "xenocara (xe): build xenocara"
+	dpop
 }
 
 hf_make_xenocara() {
+	dpush "make_xenocara"
 	cd ${BSDXENOCARADIR}
 	  if [ $? -gt 0 ]; then hf_error 1; fi
 	rm -rf ${BSDXOBJDIR}/*
@@ -67,9 +73,11 @@ hf_make_xenocara() {
 	  if [ $? -gt 0 ]; then hf_error 5; fi
 	make build 2>> ${LOG_FILE}
 	  if [ $? -gt 0 ]; then hf_error 8; fi
+	dpop
 }
 
 hf_make_build() {
+	dpush "make_build"
 	cd ${BSDSRCDIR}
 	  if [ $? -gt 0 ]; then hf_error 1; fi
 	rm -rf ${BSDOBJDIR}/*
@@ -86,9 +94,11 @@ hf_make_build() {
 	  if [ $? -gt 0 ]; then hf_error 7; fi
 	make build 2>> ${LOG_FILE}
 	  if [ $? -gt 0 ]; then hf_error 8; fi
+	dpop
 }
 
 hf_make_kernel() {
+	dpush "make_kernel"
 	cd ${BSDSRCDIR}/sys/arch/${ARCH}/conf
 	  if [ $? -gt 0 ]; then hf_error 1; fi
 	config $KERNEL
@@ -111,9 +121,11 @@ hf_make_kernel() {
 		reboot
 		  if [ $? -gt 0 ]; then hf_error 7; fi
 	fi
+	dpop
 }
 
 hf_push() {
+	dpush "push"
 	echo "[1/4] $SRCNAME"
 	hf__push "$SRCNAME"
 	echo "[2/4] $PORTSNAME"
@@ -122,9 +134,11 @@ hf_push() {
 	hf__push "$XENOCARANAME"
 	echo "[4/4] hellfish"
 	hf__push "./"
+	dpop
 }
 
 hf_pull() {
+	dpush "pull"
 	echo "[1/4] hellfish"
 	hf__pull "./"
 	echo "[2/4] $SRCNAME"
@@ -133,18 +147,22 @@ hf_pull() {
 	hf__pull "$PORTSNAME"
 	echo "[4/4] $XENOCARANAME"
 	hf__pull "$XENOCARANAME"
+	dpop
 }
 
 hf__push() {
+	dpush "_push"
 	cd "$1"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	git push
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
+	dpop
 }
 
 hf__pull() {
+	dpush "_pull"
 	cd "$1"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	git checkout master
@@ -153,9 +171,11 @@ hf__pull() {
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
+	dpop
 }
 
 hf__clear_git_workdir() {
+	dpush "_clear_git_workdir"
 	cd "$1"
 	  if [ $? -gt 0 ]; then hf_error 3; fi
 	git checkout master >> $CVSYNC_LOG_FILE
@@ -168,16 +188,20 @@ hf__clear_git_workdir() {
 	helper_stop_dots
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 3; fi
+	dpop
 }
 
 hf__cvs_co() {
+	dpush "_cvs_co"
 	helper_start_dots
 	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
 	  if [ $? -gt 0 ]; then hf_error 5; fi
 	helper_stop_dots
+	dpop
 }
 
 hf__add_to_git() {
+	dpush "_add_to_git"
 	cd "$1"
 	  if [ $? -gt 0 ]; then hf_error 4; fi
 	git add -A :/ >> $CVSYNC_LOG_FILE
@@ -190,9 +214,11 @@ hf__add_to_git() {
 		  if [ $? -gt 0 ]; then hf_error 4; fi
 	fi
 	cd "$HFDIR"
+	dpop
 }
 
 hf_cvsync() {
+	dpush "cvsync"
 	echo "[1/4] cvsync repo"
 	helper_start_dots
 	cvsync -c "$CVSYNCCONF" >> $CVSYNC_LOG_FILE
@@ -215,12 +241,14 @@ hf_cvsync() {
 	hf__add_to_git "$BSDXENOCARADIR" "$1"
 
 	rm $CVSYNC_LOG_FILE
+	dpop
 }
 
 hf_error() {
+	dpush "error"
 	helper_stop_dots
-	echo "ERROR"
-	exit $1
+	dprint_trace_exit_if_error $1
+	dpop
 }
 
 ### main ###
