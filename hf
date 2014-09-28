@@ -1,5 +1,6 @@
 #!/bin/sh
 
+. ./files/scripts/Helper.sh
 . ./files/scripts/DebugPrint.sh
 . ./files/conf/hf.conf
 
