@@ -3,33 +3,6 @@
 . ./files/scripts/DebugPrint.sh
 . ./files/conf/hf.conf
 
-### helper functions ###
-DOTS_RUNNING_PID=0
-
-helper_start_dots() {
-	helper_stop_dots
-	/bin/sh <<EOF &
-while [ 1 -eq 1 ]
-do
-sleep 5
-echo -n "."
-done
-EOF
-	
-	DOTS_RUNNING_PID=$!
-}
-
-helper_stop_dots() {
-	if [ $DOTS_RUNNING_PID -gt 0 ]
-	then
-		kill $DOTS_RUNNING_PID
-		printf "\n"
-	fi
-
-	DOTS_RUNNING_PID=0
-}
-
-### hellfish functions ###
 hf_main() {
 	dpush "main"
 	case "$1" in
@@ -182,10 +155,10 @@ hf__clear_git_workdir() {
 	  if [ $? -gt 0 ]; then hf_error 3; fi
 	git pull 
 	  if [ $? -gt 0 ]; then hf_error 3; fi
-	helper_start_dots
+	__start_dots
 	rm -rf *
 	  if [ $? -gt 0 ]; then hf_error 3; fi
-	helper_stop_dots
+	__stop_dots
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 3; fi
 	dpop
@@ -193,10 +166,10 @@ hf__clear_git_workdir() {
 
 hf__cvs_co() {
 	dpush "_cvs_co"
-	helper_start_dots
+	__start_dots
 	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
 	  if [ $? -gt 0 ]; then hf_error 5; fi
-	helper_stop_dots
+	__stop_dots
 	dpop
 }
 
@@ -220,10 +193,10 @@ hf__add_to_git() {
 hf_cvsync() {
 	dpush "cvsync"
 	echo "[1/4] cvsync repo"
-	helper_start_dots
+	__start_dots
 	cvsync -c "$CVSYNCCONF" >> $CVSYNC_LOG_FILE
 	  if [ $? -gt 0 ]; then hf_error 2; fi
-	helper_stop_dots
+	__stop_dots
 
 	echo "[2/4] clear git working directories"
 	hf__clear_git_workdir "$BSDSRCDIR"
@@ -246,7 +219,7 @@ hf_cvsync() {
 
 hf_error() {
 	dpush "error"
-	helper_stop_dots
+	__stop_dots
 	dprint_trace_exit_if_error $1
 	dpop
 }
