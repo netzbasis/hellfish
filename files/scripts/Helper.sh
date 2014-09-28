@@ -15,7 +15,7 @@ __get_timestamp() {
 
 
 __start_dots() {
-	helper_stop_dots
+	__stop_dots	
 	/bin/sh <<EOF &
 while [ 1 -eq 1 ]
 do
