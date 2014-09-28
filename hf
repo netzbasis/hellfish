@@ -181,7 +181,7 @@ hf__add_to_git() {
 	git add -A :/ >> $CVSYNC_LOG_FILE
 	  if [ $? -gt 0 ]; then hf_error 4; fi
 	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 0 ]; then hf_error 4; fi
+	  if [ $? -gt 1 ]; then hf_error 4; fi
 	if [ "x$2" == "x-p" ]
 	then
 		git push
