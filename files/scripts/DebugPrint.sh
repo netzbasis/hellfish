@@ -37,9 +37,11 @@ function dpop {
 
 # $1 exit code
 function dprint_trace_exit_if_error {
-	if [ $1 -gt 0 ]; then
+	DEB_RET=$1
+	if [ $DEB_RET -gt 0 ]; then
 		dprint_stack_trace
-		exit $1
+		echo "error return value was: $DEB_RET"
+		exit $DEB_RET
 	fi
 }
 
