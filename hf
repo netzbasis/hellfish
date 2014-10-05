@@ -31,7 +31,7 @@ hf_usage() {
 	printf "\t[-i] install\n\t[-r] reboot\n"
 	echo "userland (us): build userland"
 	echo "xenocara (xe): build xenocara"
-	echo "hellfish (he): recreate experimental branch"
+	echo "hellfish (hf): recreate experimental branch"
 	dpop
 }
 
