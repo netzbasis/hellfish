@@ -13,6 +13,7 @@ hf_main() {
 		kernel|ke) hf_make_kernel "$2" "$3";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
+		hellfish|hf) hf_recreate_exp_branch;;
 		*) hf_usage;;
 	esac
 	dpop
@@ -30,6 +31,33 @@ hf_usage() {
 	printf "\t[-i] install\n\t[-r] reboot\n"
 	echo "userland (us): build userland"
 	echo "xenocara (xe): build xenocara"
+	echo "hellfish (he): recreate experimental branch"
+	dpop
+}
+
+hf_recreate_exp_branch() {
+	dpush "recreate_exp_branch"
+
+	echo "[1/1] recreate $SRCNAME"
+	hf__recreate_exp "${SRCNAME}"
+
+	dpop
+}
+
+hf__recreate_exp() {
+	dpush "_recreate_exp"
+
+	cd "$1"
+	  if [ $? -gt 0 ]; then hf_error 1; fi
+	git checkout master
+	  if [ $? -gt 0 ]; then hf_error 2; fi
+	git branch -D ${EXPERIMENTAL_BRANCH}
+	  if [ $? -gt 0 ]; then hf_error 3; fi
+	git checkout -b ${EXPERIMENTAL_BRANCH}
+	  if [ $? -gt 0 ]; then hf_error 4; fi
+	cd "$HFDIR"
+	  if [ $? -gt 0 ]; then hf_error 5; fi
+
 	dpop
 }
 
