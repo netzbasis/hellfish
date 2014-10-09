@@ -73,7 +73,7 @@ hf_make_xenocara() {
 	  if [ $? -gt 0 ]; then hf_error 4; fi
 	make bootstrap
 	  if [ $? -gt 0 ]; then hf_error 5; fi
-	make build 2>> ${LOG_FILE}
+	make build | tee ${LOG_FILE}
 	  if [ $? -gt 0 ]; then hf_error 8; fi
 	dpop
 }
@@ -94,7 +94,7 @@ hf_make_build() {
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	cd ${BSDSRCDIR}
 	  if [ $? -gt 0 ]; then hf_error 7; fi
-	make build 2>> ${LOG_FILE}
+	make build | tee ${LOG_FILE}
 	  if [ $? -gt 0 ]; then hf_error 8; fi
 	dpop
 }
@@ -109,7 +109,7 @@ hf_make_kernel() {
 	  if [ $? -gt 0 ]; then hf_error 3; fi
 	make clean
 	  if [ $? -gt 0 ]; then hf_error 4; fi
-	make 
+	make | tee ${LOG_FILE}
 	  if [ $? -gt 0 ]; then hf_error 5; fi
 
 	if [ "x$1" = "x-i" ]
