@@ -55,9 +55,20 @@ hf__recreate_exp() {
 	  if [ $? -gt 0 ]; then hf_error 3; fi
 	git checkout -b ${EXPERIMENTAL_BRANCH}
 	  if [ $? -gt 0 ]; then hf_error 4; fi
+	hf__merge_hf_branches
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 5; fi
 
+	dpop
+}
+
+hf__merge_hf_branches() {
+	dpush "_merge_hf_branches"
+
+	git branch 2>/dev/null | grep "hf-" | cut -c 3- | while read line
+	do
+		git merge --no-ff -m "Merge $line into $EXPERIMENTAL_BRANCH" $line
+	done
 	dpop
 }
 
