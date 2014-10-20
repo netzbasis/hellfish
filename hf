@@ -52,7 +52,6 @@ hf__recreate_exp() {
 	git checkout master
 	  if [ $? -gt 0 ]; then hf_error 2; fi
 	git branch -D ${EXPERIMENTAL_BRANCH}
-	  if [ $? -gt 0 ]; then hf_error 3; fi
 	git checkout -b ${EXPERIMENTAL_BRANCH}
 	  if [ $? -gt 0 ]; then hf_error 4; fi
 	hf__merge_hf_branches
