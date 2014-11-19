@@ -207,7 +207,7 @@ hf__cvs_co() {
 	dpush "_cvs_co"
 	__start_dots
 	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 0 ]; then hf_error 5; fi
+	  if [ $? -gt 1 ]; then hf_error 5; fi
 	__stop_dots
 	dpop
 }
