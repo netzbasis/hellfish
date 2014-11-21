@@ -154,7 +154,7 @@ hf__cvs_up() {
 	cd "$1"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 0 ]; then hf_error 6; fi
+	  if [ $? -gt 1 ]; then hf_error 6; fi
 	cd "$HFDIR"
 	  if [ $? -gt 0 ]; then hf_error 6; fi
 	dpop
