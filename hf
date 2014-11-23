@@ -8,7 +8,7 @@ hf_main() {
 	dpush "main"
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
-		cvs) hf_cvs_up;;
+		cvs) hf_cvs_up "$2";;
 		pull) hf_pull;;
 		push) hf_push;;
 		kernel|ke) hf_make_kernel "$2" "$3";;
@@ -24,9 +24,10 @@ hf_usage() {
 	dpush "usage"
 	echo "usage: $0 <command> [option]"
 	echo "available commands (aliases)"
-	echo "cvsync (cs): sync cvs and git"
+	echo "cvsync (cs): sync cvs repos and git repos"
 	printf "\t[-p] push git repos after sync\n"
-	echo "cvs: make repo cvs compatible"
+	echo "cvs: make git workdirs cvs compatible"
+	printf "\t[-s] first sync cvs repo, but not git\n"
 	echo "pull: pull all git repos"
 	echo "push: push all git repos"
 	echo "kernel (ke): build kernel"
@@ -140,7 +141,11 @@ hf_make_kernel() {
 
 hf_cvs_up() {
 	dpush "cvs_up"
-	hf_cvsync_only
+	if [ "x$1" == "x-s" ]
+	then
+		hf_cvsync_only
+		  if [ $? -gt 0 ]; then hf_error 4; fi
+	fi
 
 	echo "[1/3] $SRCNAME"
 	hf__cvs_up "$SRCNAME"
