@@ -18,5 +18,5 @@ REQUIREMENTS
 * openbsd current or at least a recent snapshot
 * cvsync
 * git
-* 4GB of space for $CVSROOT
+* 6GB of space for $CVSROOT
 * 3GB of space for $HFDIR
