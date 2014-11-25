@@ -69,88 +69,58 @@ hf__command() {
 
 hf_recreate_exp_branch() {
 	dpush "recreate_exp_branch"
-	hf__command "$SRCNAME" "git checkout master"
-	hf__command "$SRCNAME" "git branch -D $EXPERIMENTAL_BRANCH" 1
-	hf__command "$SRCNAME" "git checkout -b $EXPERIMENTAL_BRANCH"
+	hf_command "git checkout master"
+	hf_command "git branch -D $EXPERIMENTAL_BRANCH" 1
+	hf_command "git checkout -b $EXPERIMENTAL_BRANCH"
 	hf__merge_hf_branches "$SRCNAME"
+	hf__merge_hf_branches "$PORTSNAME"
+	hf__merge_hf_branches "$XENOCARANAME"
 	dpop
 }
 
+# $1 directory
 hf__merge_hf_branches() {
 	dpush "_merge_hf_branches"
 	cd "$1"
-	  if [ $? -gt 0 ]; then hf_error 1; fi
+	    [ $? -gt 0 ] && hf_error 128
 	git branch 2>/dev/null | grep "hf-" | cut -c 3- | while read line
 	do
 		git merge --no-ff -m "Merge $line into $EXPERIMENTAL_BRANCH" $line
+		    [ $? -gt 0 ] && hf_error 128
 	done
 	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then hf_error 5; fi
+	    [ $? -gt 0 ] && hf_error 128
 	dpop
 }
 
 hf_make_xenocara() {
 	dpush "make_xenocara"
-	cd ${BSDXENOCARADIR}
-	  if [ $? -gt 0 ]; then hf_error 1; fi
-	rm -rf ${BSDXOBJDIR}/*
-	  if [ $? -gt 0 ]; then hf_error 2; fi
-	make clean
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	make obj
-	  if [ $? -gt 0 ]; then hf_error 4; fi
-	make bootstrap
-	  if [ $? -gt 0 ]; then hf_error 5; fi
-	make build | tee ${LOG_FILE}
-	  if [ $? -gt 0 ]; then hf_error 8; fi
+	hf__command "$BSDXOBJDIR" "rm -rf *"
+	hf__command "$XENOCARANAME" "make clean"
+	hf__command "$XENOCARANAME" "make obj"
+	hf__command "$XENOCARANAME" "make bootstrap"
+	hf__command "$XENOCARANAME" "make build | tee ${LOG_FILE}"
 	dpop
 }
 
 hf_make_build() {
 	dpush "make_build"
-	cd ${BSDSRCDIR}
-	  if [ $? -gt 0 ]; then hf_error 1; fi
-	rm -rf ${BSDOBJDIR}/*
-	  if [ $? -gt 0 ]; then hf_error 2; fi
-	make clean
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	make obj
-	  if [ $? -gt 0 ]; then hf_error 4; fi
-	cd ${BSDSRCDIR}/etc
-	  if [ $? -gt 0 ]; then hf_error 5; fi
-	env DESTDIR=/ make distrib-dirs
-	  if [ $? -gt 0 ]; then hf_error 6; fi
-	cd ${BSDSRCDIR}
-	  if [ $? -gt 0 ]; then hf_error 7; fi
-	make build | tee ${LOG_FILE}
-	  if [ $? -gt 0 ]; then hf_error 8; fi
+	hf__command "$BSDOBJDIR" "rm -rf *"
+	hf__command "$SRCNAME" "make clean"
+	hf__command "$SRCNAME" "make obj"
+	hf__command "$SRCNAME/etc" "env DESTDIR=/ make distrib-dirs"
+	hf__command "$SRCNAME" "make build | tee ${LOG_FILE}"
 	dpop
 }
 
 hf_make_kernel() {
 	dpush "make_kernel"
-	cd ${BSDSRCDIR}/sys/arch/${ARCH}/conf
-	  if [ $? -gt 0 ]; then hf_error 1; fi
-	config $KERNEL
-	  if [ $? -gt 0 ]; then hf_error 2; fi
-	cd ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	make clean
-	  if [ $? -gt 0 ]; then hf_error 4; fi
-	make | tee ${LOG_FILE}
-	  if [ $? -gt 0 ]; then hf_error 5; fi
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/conf" "config $KERNEL"
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make clean"
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
 
-	if [ "x$1" = "x-i" ]
-	then
-		make install
-		  if [ $? -gt 0 ]; then hf_error 6; fi
-	fi
-	
-	if [ "x$2" = "x-r" ]
-	then
-		reboot
-		  if [ $? -gt 0 ]; then hf_error 7; fi
-	fi
+	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make install"
+	[ "x$2" = "x-r" ] && hf__command "./" "reboot"
 	dpop
 }
 
