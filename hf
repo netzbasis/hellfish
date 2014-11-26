@@ -56,7 +56,7 @@ hf_command() {
 hf__command() {
 	dpush "_command"
 	[ -z "$3" ] && ERR=0 || ERR="$3"
-	echo "====> PWD $1 CMD $2"
+	echo "===> PWD $1 CMD $2 <==="
 	cd "$1"
 	    [ $? -gt 0 ] && hf_error 128
 	eval $2
@@ -108,45 +108,19 @@ hf_make_kernel() {
 	dpop
 }
 
+# $1 cvsync
 hf_cvs_up() {
 	dpush "cvs_up"
-	if [ "x$1" == "x-s" ]
-	then
-		hf_cvsync_only
-	fi
+	[ "x$1" == "x-s" ] && hf_cvsync_only
 
-	echo "[1/3] $SRCNAME"
-	hf__cvs_up "$SRCNAME"
-	echo "[2/3] $PORTSNAME"
-	hf__cvs_up "$PORTSNAME"
-	echo "[3/3] $XENOCARANAME"
-	hf__cvs_up "$XENOCARANAME"
-	dpop
-}
-
-hf__cvs_up() {
-	dpush "_cvs_up"
-	cd "$1"
-	  if [ $? -gt 0 ]; then hf_error 6; fi
-	__start_dots	
-	cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 1 ]; then hf_error 6; fi
-	__stop_dots
-	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then hf_error 6; fi
+	hf_command "cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
 
 hf_push() {
 	dpush "push"
-	echo "[1/4] $SRCNAME"
-	hf__push "$SRCNAME"
-	echo "[2/4] $PORTSNAME"
-	hf__push "$PORTSNAME"
-	echo "[3/4] $XENOCARANAME"
-	hf__push "$XENOCARANAME"
-	echo "[4/4] hellfish"
-	hf__push "./"
+	hf_command "git push"
+	hf__command "./" "git push"
 	dpop
 }
 
@@ -159,90 +133,31 @@ hf_pull() {
 	dpop
 }
 
-hf__push() {
-	dpush "_push"
-	cd "$1"
-	  if [ $? -gt 0 ]; then hf_error 6; fi
-	git push
-	  if [ $? -gt 0 ]; then hf_error 6; fi
-	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then hf_error 6; fi
-	dpop
-}
-
-hf__clear_git_workdir() {
-	dpush "_clear_git_workdir"
-	cd "$1"
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	git checkout master >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	git pull 
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	__start_dots
-	rm -rf *
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	__stop_dots
-	cd "$HFDIR"
-	  if [ $? -gt 0 ]; then hf_error 3; fi
-	dpop
-}
-
-hf__cvs_co() {
-	dpush "_cvs_co"
-	__start_dots
-	cvs -d $CVSROOT co -P $1 >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 1 ]; then hf_error 5; fi
-	__stop_dots
-	dpop
-}
-
-hf__add_to_git() {
-	dpush "_add_to_git"
-	cd "$1"
-	  if [ $? -gt 0 ]; then hf_error 4; fi
-	git add -A :/ >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then hf_error 4; fi
-	git commit -m "sync with openbsd-current" >> $CVSYNC_LOG_FILE 2>&1
-	  if [ $? -gt 1 ]; then hf_error 4; fi
-	if [ "x$2" == "x-p" ]
-	then
-		git push
-		  if [ $? -gt 0 ]; then hf_error 4; fi
-	fi
-	cd "$HFDIR"
-	dpop
-}
-
 hf_cvsync_only() {
 	dpush "cvsync_only"
-	echo "cvsync repo"
-	__start_dots
-	cvsync -c "$CVSYNCCONF" >> $CVSYNC_LOG_FILE
-	  if [ $? -gt 0 ]; then hf_error 2; fi
-	__stop_dots
+	hf__command "./" "cvsync -c $CVSYNCCONF >> $CVSYNC_LOG_FILE"
 	dpop
 }
 
+# $1 push
 hf_cvsync() {
 	dpush "cvsync"
 	hf_cvsync_only
 
-	echo "[1/3] clear git working directories"
-	hf__clear_git_workdir "$BSDSRCDIR"
-	hf__clear_git_workdir "$BSDPORTSDIR"
-	hf__clear_git_workdir "$BSDXENOCARADIR"
+	hf_command "git checkout master >> $CVSYNC_LOG_FILE"
+	hf_command "git pull"
+	hf_command "rm -rf *"
 
-	echo "[2/3] cvs checkout"
-	hf__cvs_co $SRCNAME
-	hf__cvs_co $PORTSNAME
-	hf__cvs_co $XENOCARANAME
+	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
 
-	echo "[3/3] add to git"
-	hf__add_to_git "$BSDSRCDIR" "$1"
-	hf__add_to_git "$BSDPORTSDIR" "$1"
-	hf__add_to_git "$BSDXENOCARADIR" "$1"
+	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
+	hf_command "git commit -m 'sync with openbsd-current' >> $CVSYNC_LOG_FILE 2>&1" 1
 
-	rm $CVSYNC_LOG_FILE
+	[ "x$1" == "x-p" ] && hf_push
+
+	hf__command "./" "rm $CVSYNC_LOG_FILE"
 	dpop
 }
 
@@ -254,3 +169,4 @@ hf_error() {
 ### main ###
 [ $# -lt 1 ] &&	hf_usage || hf_main "$@"
 exit 0
+
