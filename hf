@@ -56,10 +56,10 @@ hf_command() {
 hf__command() {
 	dpush "_command"
 	[ -z "$3" ] && ERR=0 || ERR="$3"
-	echo "PWD $1 | CMD $2"
+	echo "====> PWD $1 CMD $2"
 	cd "$1"
 	    [ $? -gt 0 ] && hf_error 128
-	$2
+	eval $2
 	RET=$?
 	    [ $RET -gt $ERR ] && hf_error $RET
 	cd "$HFDIR"
@@ -72,24 +72,7 @@ hf_recreate_exp_branch() {
 	hf_command "git checkout master"
 	hf_command "git branch -D $EXPERIMENTAL_BRANCH" 1
 	hf_command "git checkout -b $EXPERIMENTAL_BRANCH"
-	hf__merge_hf_branches "$SRCNAME"
-	hf__merge_hf_branches "$PORTSNAME"
-	hf__merge_hf_branches "$XENOCARANAME"
-	dpop
-}
-
-# $1 directory
-hf__merge_hf_branches() {
-	dpush "_merge_hf_branches"
-	cd "$1"
-	    [ $? -gt 0 ] && hf_error 128
-	git branch 2>/dev/null | grep "hf-" | cut -c 3- | while read line
-	do
-		git merge --no-ff -m "Merge $line into $EXPERIMENTAL_BRANCH" $line
-		    [ $? -gt 0 ] && hf_error 128
-	done
-	cd "$HFDIR"
-	    [ $? -gt 0 ] && hf_error 128
+	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do git merge --no-ff -m 'Merge \$line into $EXPERIMENTAL_BRANCH' \$line; done"
 	dpop
 }
 
@@ -113,6 +96,7 @@ hf_make_build() {
 	dpop
 }
 
+# $1 install, $2 reboot
 hf_make_kernel() {
 	dpush "make_kernel"
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/conf" "config $KERNEL"
