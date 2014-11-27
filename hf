@@ -49,6 +49,7 @@ hf_command() {
 	hf__command "$SRCNAME" "$1" "$2"
 	hf__command "$PORTSNAME" "$1" "$2"
 	hf__command "$XENOCARANAME" "$1" "$2"
+	hf__command "$WWWNAME" "$1" "$2"
 	dpop
 }
 

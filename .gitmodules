@@ -7,3 +7,6 @@
 [submodule "xenocara"]
 	path = xenocara
 	url = https://github.com/netzbasis/openbsd-xenocara.git
+[submodule "www"]
+	path = www
+	url = https://github.com/netzbasis/openbsd-www.git
