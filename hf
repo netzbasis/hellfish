@@ -22,6 +22,7 @@ hf_main() {
 		cmd) hf_command "$2";;
 		*) hf_usage;;
 	esac
+	echo "$(__stop_timer) $@" >> $TIME_LOG_FILE
 	echo "===> time elapsed $(__stop_timer) <==="
 	dpop
 }

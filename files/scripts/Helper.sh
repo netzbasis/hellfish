@@ -4,7 +4,6 @@
 ########################################################################
 DOTS_RUNNING_PID=0
 TSTART=0
-TSTOP=0
 
 __delete_multiple_whitespaces() {
 	RET=$(echo "$1" | sed "s/  / /g") 
