@@ -3,6 +3,8 @@
 # Helper scripts
 ########################################################################
 DOTS_RUNNING_PID=0
+TSTART=0
+TSTOP=0
 
 __delete_multiple_whitespaces() {
 	RET=$(echo "$1" | sed "s/  / /g") 
@@ -13,6 +15,17 @@ __get_timestamp() {
 	echo $(date +%s)
 }
 
+__start_timer() {
+	TSTART=$(__get_timestamp)
+}
+
+__stop_timer() {
+	TSTOP=$(__get_timestamp)
+	TELAPSED=$(( $TSTOP - $TSTART ))
+	TMIN=$(( $TELAPSED / 60 ))
+	TSEC=$(( $TELAPSED % 60 ))
+	echo $TMIN:$TSEC
+}
 
 __start_dots() {
 	__stop_dots	

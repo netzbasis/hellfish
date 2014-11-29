@@ -9,6 +9,7 @@
 # $@ all parameters
 hf_main() {
 	dpush "main"
+	__start_timer
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
 		cvs) hf_cvs_up "$2";;
@@ -21,6 +22,7 @@ hf_main() {
 		cmd) hf_command "$2";;
 		*) hf_usage;;
 	esac
+	echo "===> time elapsed $(__stop_timer) <==="
 	dpop
 }
 
