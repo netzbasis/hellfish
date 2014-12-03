@@ -9,7 +9,6 @@
 # $@ all parameters
 hf_main() {
 	dpush "main"
-	__start_timer
 	case "$1" in
 		cvsync|cs) hf_cvsync "$2";;
 		cvs) hf_cvs_up "$2";;
@@ -22,8 +21,6 @@ hf_main() {
 		cmd) hf_command "$2";;
 		*) hf_usage;;
 	esac
-	echo "$(__stop_timer) $@" >> $TIME_LOG_FILE
-	echo "===> time elapsed $(__stop_timer) <==="
 	dpop
 }
 
@@ -155,6 +152,7 @@ hf_cvsync() {
 	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
 	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
 	hf__command "./" "cvs -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $WWWNAME >> $CVSYNC_LOG_FILE 2>&1" 1
 
 	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
 	hf_command "git commit -m 'sync with openbsd-current' >> $CVSYNC_LOG_FILE 2>&1" 1
@@ -167,10 +165,17 @@ hf_cvsync() {
 
 hf_error() {
 	__stop_dots
+	echo "ERROR: $(__stop_timer) $@" >> $TIME_LOG_FILE
 	dprint_trace_exit_if_error $1
 }
 
 ### main ###
+__start_timer
+
 [ $# -lt 1 ] &&	hf_usage || hf_main "$@"
+
+echo "$(__stop_timer) $@" >> $TIME_LOG_FILE
+echo "===> time elapsed $(__stop_timer) <==="
+
 exit 0
 
