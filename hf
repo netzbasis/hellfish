@@ -165,7 +165,7 @@ hf_cvsync() {
 
 hf_error() {
 	__stop_dots
-	echo "ERROR: $(__stop_timer) $@" >> $TIME_LOG_FILE
+	echo "ERROR: $(__stop_timer) $DEBUG_PRINT_STACK $1" >> $TIME_LOG_FILE
 	dprint_trace_exit_if_error $1
 }
 
