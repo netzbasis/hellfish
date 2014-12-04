@@ -105,7 +105,7 @@ hf_make_kernel() {
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
 
 	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make install"
-	[ "x$2" = "x-r" ] && hf__command "./" "reboot"
+	[ "x$2" = "x-r" ] && hf__command "./" "reboot&"
 	dpop
 }
 
