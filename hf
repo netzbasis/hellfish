@@ -147,7 +147,7 @@ hf_cvsync() {
 
 	hf_command "git checkout master >> $CVSYNC_LOG_FILE"
 	hf_command "git pull"
-	hf_command "rm -rf *"
+	hf_command "git clean -dxfq"
 
 	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
 	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
