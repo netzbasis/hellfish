@@ -62,7 +62,7 @@ hf__command() {
 	    [ $? -gt 0 ] && hf_error 128
 	eval $2
 	RET=$?
-	    [ $RET -gt $ERR ] && hf_error $RET
+	    [ $RET -gt $ERR ] && ERRCMD="$2" && hf_error $RET
 	cd "$HFDIR"
 	    [ $? -gt 0 ] && hf_error 128
 	dpop
@@ -163,9 +163,13 @@ hf_cvsync() {
 	dpop
 }
 
+# $1 return value
 hf_error() {
 	__stop_dots
 	echo "ERROR: $(__stop_timer) $DEBUG_PRINT_STACK $1" >> $TIME_LOG_FILE
+	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD" >> $TIME_LOG_FILE
+	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD"
+	ERRCMD=""
 	dprint_trace_exit_if_error $1
 }
 
