@@ -19,6 +19,7 @@ hf_main() {
 		xenocara|xe) hf_make_xenocara;;
 		hellfish|hf) hf_recreate_exp_branch;;
 		cmd) hf_command "$2";;
+		clean|cl) hf_clean "$2";;
 		*) hf_usage;;
 	esac
 	dpop
@@ -40,6 +41,8 @@ hf_usage() {
 	echo "xenocara (xe): build xenocara"
 	echo "hellfish (hf): recreate experimental branch"
 	echo "cmd: execute command in all submodules"
+	echo "clean (cl): clean untracked files"
+	printf "\t[-a] also clean hellfish repo\n"
 	dpop
 }
 
@@ -65,6 +68,14 @@ hf__command() {
 	    [ $RET -gt $ERR ] && ERRCMD="$2" && hf_error $RET
 	cd "$HFDIR"
 	    [ $? -gt 0 ] && hf_error 128
+	dpop
+}
+
+# $1 clean_all_flag
+hf_clean() {
+	dpush "clean"
+	[ "x$1" = "x-a" ] && hf__command "./" "git clean -xdf"
+	hf_command "git clean -xdf"
 	dpop
 }
 
