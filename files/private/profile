@@ -1,0 +1,35 @@
+# $OpenBSD: dot.profile,v 1.4 2005/02/16 06:56:57 matthieu Exp $
+#
+# sh/ksh initialization
+PATH=$HOME/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/games:.
+export PATH HOME TERM
+export ENV=$HOME/.kshrc
+
+git_branch() {
+	a=$(git branch 2>/dev/null | grep "*" | cut -c 3-)
+	[ -n "$a" ] && echo "[ $a ]"
+}
+
+return_value() {
+	a=$?
+	[ $a -gt 0 ] && echo ">>> $a <<<"
+}
+
+alias l="ls -lhF"
+alias la="l -a"
+alias j="jobs"
+alias du="du -hs"
+alias df="df -h"
+
+alias mall="make clean; make obj; make depend; make" 
+
+alias u="mixerctl outputs.master=+10"
+alias uu="u;u"
+alias uuu="uu;uu"
+alias d="mixerctl outputs.master=-10"
+alias ddd="d;d;d;d"
+alias t="mixerctl outputs.master.mute=toggle"
+alias r="mixerctl outputs.master=80"
+
+export PS1='$(hostname -s) | ${PWD} $(git_branch) $(return_value)
+$ '

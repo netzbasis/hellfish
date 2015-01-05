@@ -1,0 +1,4 @@
+#!/bin/sh
+xlock&
+sleep 3
+zzz

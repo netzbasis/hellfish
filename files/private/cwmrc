@@ -1,0 +1,24 @@
+borderwidth 2 
+snapdist 6
+color activeborder steelblue
+color inactiveborder black
+color urgencyborder red
+
+gap 0 0 0 0
+
+autogroup 1 xterm
+autogroup 2 chrome
+
+command lock xlock
+command term "xterm -bg black -fg white"
+command xkill xkill
+command Chromium chrome
+command Claws claws-mail
+command Geany geany
+command Thunar thunar
+command VLC vlc
+command LibreOffice soffice
+
+mousebind M-1 window_move
+mousebind M-2 unmap
+mousebind M-3 window_resize
