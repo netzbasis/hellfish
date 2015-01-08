@@ -158,19 +158,32 @@ hf_cvsync() {
 	dpush "cvsync"
 	hf_cvsync_only
 	hf_pull
-	hf_command "rm -rf *"
+	hf_reset
+	hf_clean
 
-	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $WWWNAME >> $CVSYNC_LOG_FILE 2>&1" 1
-
-	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
-	hf_command "git commit -m 'sync with openbsd-current' >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf_cvs_checkout
+	hf_commit_all "sync with openbsd-current"
 
 	[ "x$1" == "x-p" ] && hf_push
 
 	hf__command "./" "rm $CVSYNC_LOG_FILE"
+	dpop
+}
+
+hf_cvs_checkout() {
+	dpush "cvs_cehckout"
+	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "cvs -d $CVSROOT co -P $WWWNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	dpop
+}
+
+$1 commit_message
+hf_commit_all() {
+	dpush "commit_all"
+	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
+	hf_command "git commit -m "$1" >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
 
