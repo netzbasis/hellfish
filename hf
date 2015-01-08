@@ -138,6 +138,8 @@ hf_push() {
 
 hf_pull() {
 	dpush "pull"
+	hf__command "./" "git fetch --all -p"
+	hf_command "git fetch --all -p"
 	hf__command "./" "git checkout master"
 	hf_command "git checkout master"
 	hf__command "./" "git pull"
@@ -155,9 +157,7 @@ hf_cvsync_only() {
 hf_cvsync() {
 	dpush "cvsync"
 	hf_cvsync_only
-
-	hf_command "git checkout master >> $CVSYNC_LOG_FILE"
-	hf_command "git pull"
+	hf_pull
 	hf_command "rm -rf *"
 
 	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
