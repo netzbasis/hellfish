@@ -44,6 +44,8 @@ hf_usage() {
 	echo "cmd: execute command in all submodules"
 	echo "clean (cl): clean untracked files"
 	printf "\t[-a] also clean hellfish repo\n"
+	echo "reset (re): reset uncommited changes"
+	printf "\t[-a] also reset hellfish repo\n"
 	dpop
 }
 
@@ -174,8 +176,6 @@ hf_cvsync() {
 	hf_commit_all "sync with openbsd-current"
 
 	[ "x$1" == "x-p" ] && hf_push
-
-	hf__command "./" "rm $CVSYNC_LOG_FILE"
 	dpop
 }
 
