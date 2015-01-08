@@ -20,6 +20,7 @@ hf_main() {
 		hellfish|hf) hf_recreate_exp_branch;;
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
+		reset|re) hf_reset "$2";;
 		*) hf_usage;;
 	esac
 	dpop
@@ -76,6 +77,14 @@ hf_clean() {
 	dpush "clean"
 	[ "x$1" = "x-a" ] && hf__command "./" "git clean -xdf"
 	hf_command "git clean -xdf"
+	dpop
+}
+
+# $1 reset_all_flag
+hf_reset() {
+	dpush "reset"
+	[ "x$1" = "x-a" ] && hf__command "./" "git reset --hard"
+	hf_command "git reset --hard"
 	dpop
 }
 
@@ -179,7 +188,7 @@ hf_cvs_checkout() {
 	dpop
 }
 
-$1 commit_message
+# $1 commit_message
 hf_commit_all() {
 	dpush "commit_all"
 	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
