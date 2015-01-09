@@ -173,7 +173,7 @@ hf_cvsync() {
 	hf_clean
 
 	hf_cvs_checkout
-	hf_commit_all "sync with openbsd-current"
+	hf_commit_all
 
 	[ "x$1" == "x-p" ] && hf_push
 	dpop
@@ -188,11 +188,10 @@ hf_cvs_checkout() {
 	dpop
 }
 
-# $1 commit_message
 hf_commit_all() {
 	dpush "commit_all"
 	hf_command "git add -A :/ >> $CVSYNC_LOG_FILE"
-	hf_command "git commit -m "$1" >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf_command "git commit -m 'sync with openbsd-current' >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
 
