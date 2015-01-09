@@ -78,7 +78,7 @@ hf__command() {
 hf_clean() {
 	dpush "clean"
 	[ "x$1" = "x-a" ] && hf__command "./" "git clean -xdf"
-	hf_command "git clean -xdf"
+	hf_command "git clean -xdf >/dev/null"
 	dpop
 }
 
