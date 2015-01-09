@@ -169,8 +169,9 @@ hf_cvsync() {
 	dpush "cvsync"
 	hf_cvsync_only
 	hf_pull
-	hf_reset
-	hf_clean
+	#hf_reset
+	#hf_clean
+	hf_command "rm -rf *"
 
 	hf_cvs_checkout
 	hf_commit_all
