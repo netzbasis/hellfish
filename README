@@ -4,7 +4,7 @@ OpenBSD source code from cvs put into git.
 Uploaded for my own use.
 If you want to use it go ahead, but don't expect support.
 OpenBSD developers use cvs, don't bother them with git related stuff.
-The hellfish repository wraps 3 submodules for src, ports and xenocara and a bunch of related stuff.
+The hellfish repository wraps 4 submodules for src, ports, xenocara and www, as well as a bunch of related stuff.
 
 READ
 * http://www.openbsd.org/faq/index.html
