@@ -1,4 +1,6 @@
-#xrandr --output LVDS1 --mode 1366x768 --output HDMI2 --mode 1920x1200 --right-of LVDS1
+xrandr --output LVDS1 --auto --output HDMI2 --auto --right-of LVDS1
+xset s off
+xset dpms 6000 6000 6000
 feh --bg-fill ~/.xbg.file
 conky
 cwm

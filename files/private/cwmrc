@@ -3,20 +3,24 @@ snapdist 6
 color activeborder steelblue
 color inactiveborder black
 color urgencyborder red
-
 gap 0 0 0 0
+#sticky yes
 
-autogroup 1 xterm
-autogroup 2 chrome
+autogroup 1 "Vlc"
+autogroup 1 "Claws-mail"
+autogroup 2 "XTerm"
+autogroup 3 "Chrome"
 
-command lock xlock
+command lock "xlock -dpmsoff 10"
 command term "xterm -bg black -fg white"
 command xkill xkill
+command Thunar thunar
+command Geany geany
 command Chromium chrome
 command Claws claws-mail
-command Geany geany
-command Thunar thunar
+command Filezilla filezilla
 command VLC vlc
+command Gimp gimp
 command LibreOffice soffice
 
 mousebind M-1 window_move
