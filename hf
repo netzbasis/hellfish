@@ -114,7 +114,7 @@ hf_make_build() {
 	hf__command "$BSDOBJDIR" "rm -rf *"
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
-	hf__command "$SRCNAME/etc" "env DESTDIR=/ make distrib-dirs"
+	hf__command "$SRCNAME/etc" "sudo env DESTDIR=/ make distrib-dirs"
 	hf__command "$SRCNAME" "make build | tee ${LOG_FILE}"
 	dpop
 }
@@ -127,7 +127,7 @@ hf_make_kernel() {
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
 
 	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make install"
-	[ "x$2" = "x-r" ] && hf__command "./" "reboot&"
+	[ "x$2" = "x-r" ] && hf__command "./" "sudo reboot&"
 	dpop
 }
 
