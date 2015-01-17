@@ -136,7 +136,25 @@ hf_cvs_up() {
 	dpush "cvs_up"
 	[ "x$1" == "x-s" ] && hf_cvsync_only
 
+	hf_create_cvs_folders $SRCNAME
+	hf_create_cvs_folders $PORTSNAME
+	hf_create_cvs_folders $WWWNAME
+	hf_create_cvs_folders $XENOCARANAME
+
 	hf_command "cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
+	dpop
+}
+
+# $1 subfolder
+hf_create_cvs_folders() {
+	dpush "create_cvs_folders"
+	find $1 -type d | while read line
+	do
+		mkdir $line/CVS 
+		echo "$CVSROOT" > $line/CVS/Root && \
+		echo "$line" > $line/CVS/Repository && \
+		touch $line/CVS/Entries
+	done
 	dpop
 }
 
