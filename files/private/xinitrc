@@ -2,5 +2,6 @@ xrandr --output LVDS1 --auto --output HDMI2 --auto --right-of LVDS1
 xset s off
 xset dpms 6000 6000 6000
 feh --bg-fill ~/.xbg.file
+usbhidaction -c ~/.usbhid.conf -f /dev/uhid1
 conky
 cwm
