@@ -6,13 +6,13 @@ color urgencyborder red
 gap 0 0 0 0
 #sticky yes
 
-autogroup 1 "Vlc"
 autogroup 1 "Claws-mail"
 autogroup 2 "XTerm"
 autogroup 3 "Chrome"
+autogroup 4 "Vlc"
 
-command lock "xlock -dpmsoff 10"
-command term "xterm -bg black -fg white"
+command lock xlock
+command term xterm
 command xkill xkill
 command Thunar thunar
 command Geany geany
@@ -26,3 +26,5 @@ command LibreOffice soffice
 mousebind M-1 window_move
 mousebind M-2 unmap
 mousebind M-3 window_resize
+mousebind M-4 rcyclegroup
+mousebind M-5 cyclegroup
