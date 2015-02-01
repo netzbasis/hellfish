@@ -27,6 +27,14 @@ return_value() {
 	[ $a -gt 0 ] && echo ">>> $a <<<"
 }
 
+diffme() {
+	DIFFMEFILE=~/cvsdiff.log
+	echo "" >> $DIFFMEFILE
+	echo `date` >> $DIFFMEFILE
+	echo $PWD >> $DIFFMEFILE
+	cvs diff >> $DIFFMEFILE
+}
+
 alias l="ls -lhF"
 alias la="l -a"
 alias j="jobs"
@@ -34,12 +42,9 @@ alias du="du -hs"
 alias df="df -h"
 
 alias u="mixerctl outputs.master=+10"
-alias uu="u;u"
-alias uuu="uu;uu"
 alias d="mixerctl outputs.master=-10"
-alias ddd="d;d;d;d"
 alias t="mixerctl outputs.master.mute=toggle"
-alias r="mixerctl outputs.master=120"
+alias r="mixerctl outputs.master=100"
 
 setup
 export PS1='$HOSTNAME | ${PWD} $(git_branch) $(return_value)
