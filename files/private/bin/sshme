@@ -1,0 +1,34 @@
+#!/bin/sh
+
+SSHME_CONFIG=~/.sshme.conf
+
+sshme_usage() {
+	echo "usage: $0 [add <user@domain>] <regex>"
+	sshme_show_config
+	exit 1
+}
+
+sshme_main() {
+	[ "x$1" == "xadd" ] && sshme_add "$2"
+	B=`grep "$1" $SSHME_CONFIG`
+	C=`printf "$B\n" | wc -l`
+	[ $C -le 0 ] && echo regex not found && exit 2
+	[ $C -ge 2 ] && echo regex not uniq && printf "$B\n" && exit 3
+	
+	ssh "$B"
+	exit $?
+}
+
+sshme_add() {
+	echo "$1" >> $SSHME_CONFIG	
+	sshme_show_config
+	exit 0
+}
+
+sshme_show_config() {
+	A=`sort $SSHME_CONFIG | uniq`
+	echo "$A" > $SSHME_CONFIG
+	cat $SSHME_CONFIG
+}
+
+[ $# -gt 0 ] && sshme_main "$@" || sshme_usage "$@"
