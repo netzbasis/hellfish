@@ -102,7 +102,7 @@ hf_recreate_exp_branch() {
 
 hf_make_xenocara() {
 	dpush "make_xenocara"
-	hf__command "$BSDXOBJDIR" "rm -rf *"
+	hf__command "$XOBJDIR" "rm -rf *"
 	hf__command "$XENOCARANAME" "make clean"
 	hf__command "$XENOCARANAME" "make obj"
 	hf__command "$XENOCARANAME" "make bootstrap"
