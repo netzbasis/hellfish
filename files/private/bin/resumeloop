@@ -1,0 +1,31 @@
+#!/bin/sh
+LOOPER=5
+DATEA=$(date +%s)
+
+while [ $LOOPER -ge 1 ]
+do
+	# START usefull commands
+	xrandr --output LVDS1 --auto --output HDMI2 --auto --right-of LVDS1
+	xset s 0 0
+	xset dpms 0 0 0
+	usbhidaction -d -c ~/.usbhid.conf -f /dev/uhid1 >/dev/null 2>&1
+	# END usefull commands
+
+	# sleep to give enought time to reattach usb after resume
+	sleep 3 
+	DATEB=$(date +%s)
+	DATEDIFF=$(( $DATEB - $DATEA ))
+
+	# if usbhidaction runs for at least 5 seconds
+	if [ $DATEDIFF -gt 8 ]
+	then
+		LOOPER=5
+	else
+		LOOPER=$(( $LOOPER - 1 ))
+	fi
+
+	DATEA=$(date +%s)
+done
+# should not happen
+logger -p local0.notice "resumeloop terminated"
+exit 1

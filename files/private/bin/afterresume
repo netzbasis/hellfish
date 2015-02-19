@@ -1,5 +1,0 @@
-#!/bin/sh
-xrandr --output LVDS1 --auto --output HDMI2 --auto --right-of LVDS1
-xset s 0 0
-xset dpms 0 0 0
-usbhidaction -c ~/.usbhid.conf -f /dev/uhid1
