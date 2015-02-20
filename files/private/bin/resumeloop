@@ -8,7 +8,7 @@ do
 	xrandr --output LVDS1 --auto --output HDMI2 --auto --right-of LVDS1
 	xset s 0 0
 	xset dpms 0 0 0
-	usbhidaction -d -c ~/.usbhid.conf -f /dev/uhid1 >/dev/null 2>&1
+	usbhidaction -d -c ~/.usbhid.conf -f /dev/uhid1 >/dev/console 2>&1
 	# END usefull commands
 
 	# sleep to give enought time to reattach usb after resume
@@ -27,5 +27,5 @@ do
 	DATEA=$(date +%s)
 done
 # should not happen
-logger -p local0.notice "resumeloop terminated"
+echo "resumeloop terminated" >/dev/console
 exit 1

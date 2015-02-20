@@ -1,5 +1,5 @@
 /bin/sh ~/bin/resumeloop &
-xconsole -geometry +962+694
 feh --bg-fill ~/.xbg.file
+xconsole
 conky
 cwm

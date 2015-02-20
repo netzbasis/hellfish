@@ -4,3 +4,8 @@ XTerm*loginShell:true
 *foreground: green
 
 xlock*dpmsoff: 15
+
+xconsole*geometry: +962+694
+*daemon: true
+*background: #0a0a0a
+*foreground: green
