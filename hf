@@ -102,6 +102,7 @@ hf_recreate_exp_branch() {
 
 hf_make_xenocara() {
 	dpush "make_xenocara"
+	hf_fill_githash_for_logging $XENOCARANAME
 	hf__command "$XOBJDIR" "rm -rf *"
 	hf__command "$XENOCARANAME" "make clean"
 	hf__command "$XENOCARANAME" "make obj"
@@ -112,6 +113,7 @@ hf_make_xenocara() {
 
 hf_make_build() {
 	dpush "make_build"
+	hf_fill_githash_for_logging $SRCNAME
 	hf__command "$BSDOBJDIR" "rm -rf *"
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
@@ -123,6 +125,7 @@ hf_make_build() {
 # $1 install, $2 reboot
 hf_make_kernel() {
 	dpush "make_kernel"
+	hf_fill_githash_for_logging $SRCNAME
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/conf" "config $KERNEL"
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make clean"
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
@@ -225,12 +228,18 @@ hf_error() {
 	dprint_trace_exit_if_error $1
 }
 
+# $1 module name
+hf_fill_githash_for_logging() {
+	GITHASH=`cd $HFDIR/$1 && git rev-parse HEAD`
+}
+
 ### main ###
+GITHASH=""
 __start_timer
 
 [ $# -lt 1 ] &&	hf_usage || hf_main "$@"
 
-echo "$(__stop_timer) $@" >> $TIME_LOG_FILE
+echo "$(__stop_timer) $@ $GITHASH" >> $TIME_LOG_FILE
 echo "===> time elapsed $(__stop_timer) <==="
 
 exit 0
