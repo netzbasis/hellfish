@@ -35,11 +35,17 @@ diffme() {
 	cvs diff >> $DIFFMEFILE
 }
 
+diffgit() {
+	[ $1 ] && a=$1 || a=1
+	git diff HEAD~$a ./
+}
+
 alias l="ls -lhF"
 alias la="l -a"
 alias j="jobs"
 alias du="du -hs"
 alias df="df -h"
+alias startx="exec startx"
 
 alias u="mixerctl outputs.master=+10"
 alias d="mixerctl outputs.master=-10"
