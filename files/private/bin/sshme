@@ -14,7 +14,7 @@ sshme_main() {
 	[ "x$1" == "xdel" ] && sshme_del "$2"
 	
 	sshme_grep_entry $1
-	ssh "$SSHME_RET"
+	ssh $SSHME_RET
 	exit $?
 }
 
