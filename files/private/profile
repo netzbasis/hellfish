@@ -1,6 +1,8 @@
 # sh/ksh initialization
 PATH=$HOME/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/games:.
-export PATH HOME TERM
+EDITOR=vi
+VISUAL=$EDITOR
+export PATH HOME TERM EDITOR VISUAL
 
 setup() {
 	HOSTNAME=$(hostname -s)
@@ -45,7 +47,9 @@ alias la="l -a"
 alias j="jobs"
 alias du="du -hs"
 alias df="df -h"
+alias bc="bc -e scale=3"
 alias startx="exec startx"
+alias doed="doas $EDITOR"
 
 alias u="mixerctl outputs.master=+10"
 alias d="mixerctl outputs.master=-10"
