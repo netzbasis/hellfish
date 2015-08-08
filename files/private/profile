@@ -5,6 +5,7 @@ VISUAL=$EDITOR
 export PATH HOME TERM EDITOR VISUAL
 
 setup() {
+	set -o emacs
 	HOSTNAME=$(hostname -s)
 	USERID=$(id -u)
 	if [ $USERID -gt 0 ]
