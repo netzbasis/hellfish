@@ -222,11 +222,11 @@ hf_commit_all() {
 
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
-	hf__command "./" "ftp $MIRROR/SHA256"
-	hf__command "./" "ftp $MIRROR/bsd.rd"
-	hf__command "./" "sha256 -C SHA256 bsd.rd"
-	hf__command "./" "$SUDO mv bsd.rd /bsd.rd"
-	hf__command "./" "rm SHA256"
+	hf__command "./" "mkdir -p -m 744 $HFTEMP"
+	hf__command "$HFTEMP" "ftp $MIRROR/SHA256"
+	hf__command "$HFTEMP" "ftp $MIRROR/bsd.rd"
+	hf__command "$HFTEMP" "sha256 -C SHA256 bsd.rd"
+	hf__command "$HFTEMP" "$SUDO cp bsd.rd /bsd.rd"
 	dpop
 }
 
