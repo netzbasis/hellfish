@@ -22,7 +22,7 @@ hf_main() {
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
 		bsd.rd) hf_download_bsdrd;;
-		upgrade) hf_upgrade;;
+		upgrade) hf_upgrade "$2";;
 		test) hf_test;; #test hook for new functions
 		*) hf_usage;;
 	esac
@@ -224,12 +224,13 @@ hf_commit_all() {
 	dpop
 }
 
+# $1 install sets flag
 hf_upgrade() {
 	dpush "upgrade"
 	hf_get_verify_filelist
 	hf__command "$HFTEMP" "while read line; do ftp $MIRROR/\$line; done < file.list"
 	hf__command "$HFTEMP" "while read line; do sha256 -C SHA256.sig \$line; done < file.list"
-	hf__command "$HFTEMP" "../../files/scripts/Upgrade.sh ./"
+	[ "x$1" == "x-u" ] && hf__command "$HFTEMP" "$SUDO ../../files/scripts/Upgrade.sh ./"
 	dpop
 }
 
