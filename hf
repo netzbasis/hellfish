@@ -246,9 +246,8 @@ hf_download_bsdrd() {
 hf_get_verify_filelist() {
 	dpush "get_verify_filelist"
 	hf__command "./" "mkdir -p -m 744 $HFTEMP"
-	hf__command "$HFTEMP" "ftp $MIRROR/SHA256"
 	hf__command "$HFTEMP" "ftp $MIRROR/SHA256.sig"
-	hf__command "$HFTEMP" "signify -Vp $BASEPUBKEY -x SHA256.sig -m SHA256"
+	hf__command "$HFTEMP" "signify -Vep $BASEPUBKEY -x SHA256.sig -m SHA256"
 	hf__command "$HFTEMP" "cut -d ' ' -f 2 SHA256 | tr -d '(' | tr -d ')' | grep -e bsd -e .tgz > file.list"
 	dpop
 }
