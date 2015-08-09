@@ -50,7 +50,7 @@ hf_usage() {
 	echo "reset (re): reset uncommited changes"
 	printf "\t[-a] also reset hellfish repo\n"
 	echo "bsd.rd: download and install bsd.rd"
-	echo "upgrade: download upgrade files"
+	echo "upgrade: download sets and kernels"
 	printf "\t[-u] upgrade system after download\n"
 	dpop
 }
