@@ -1,5 +1,4 @@
 #!/bin/sh
-cd "$1" &&
 echo "moving kernel" &&
 cp bsd.mp /nbsd &&
 ln -f /bsd /obsd &&
@@ -9,7 +8,7 @@ mv /nbsd /bsd &&
 echo "extracting base system" &&
 for file in *.tgz
 do
-	echo "tar: $file"
+	echo "untar: $file"
 	tar -zxphf $file -C /
 	[ $? -gt 0 ] && exit 1
 done 
