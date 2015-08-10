@@ -14,6 +14,10 @@ __get_timestamp() {
 	echo $(date +%s)
 }
 
+__get_formated_date() {
+	echo $(date +%Y-%m-%d)
+}
+
 __start_timer() {
 	TSTART=$(__get_timestamp)
 }
