@@ -267,6 +267,7 @@ hf_fill_githash_for_logging() {
 
 ### main ###
 GITHASH=""
+HFTEMP=$HFTEMP/$(__get_formated_date)
 __start_timer
 
 hf_main "$@"
