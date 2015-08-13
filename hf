@@ -160,7 +160,7 @@ hf_create_cvs_folders() {
 	dpush "create_cvs_folders"
 	find $1 -type d | while read line
 	do
-		mkdir $line/CVS 
+		mkdir $line/CVS &&
 		echo "$CVSROOT" > $line/CVS/Root &&
 		echo "$line" > $line/CVS/Repository &&
 		touch $line/CVS/Entries
@@ -252,10 +252,8 @@ hf_get_verify_filelist() {
 
 # $1 return value
 hf_error() {
-	__stop_dots
 	echo "ERROR: $(__stop_timer) $DEBUG_PRINT_STACK $1" >> $TIME_LOG_FILE
-	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD" >> $TIME_LOG_FILE
-	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD"
+	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD" | tee $TIME_LOG_FILE
 	ERRCMD=""
 	dprint_trace_exit_if_error $1
 }
