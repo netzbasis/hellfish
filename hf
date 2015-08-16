@@ -226,7 +226,7 @@ hf_commit_all() {
 hf_upgrade() {
 	dpush "upgrade"
 	hf_get_verify_filelist
-	hf__command "$HFTEMP" "while read line; do ftp $MIRROR/\$line; done < file.list"
+	hf__command "$HFTEMP" "while read line; do ftp -C $MIRROR/\$line; done < file.list"
 	hf__command "$HFTEMP" "while read line; do sha256 -C SHA256 \$line; done < file.list"
 	[ "x$1" == "x-u" ] && hf__command "$HFTEMP" "$SUDO ../../files/scripts/Upgrade.sh"
 	dpop
@@ -235,7 +235,7 @@ hf_upgrade() {
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
 	hf_get_verify_filelist
-	hf__command "$HFTEMP" "ftp $MIRROR/bsd.rd"
+	hf__command "$HFTEMP" "ftp -C $MIRROR/bsd.rd"
 	hf__command "$HFTEMP" "sha256 -C SHA256 bsd.rd"
 	hf__command "$HFTEMP" "$SUDO cp bsd.rd /bsd.rd"
 	dpop
