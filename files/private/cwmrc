@@ -10,18 +10,20 @@ autogroup 1 "Claws-mail"
 autogroup 2 "XTerm"
 autogroup 3 "Chrome"
 autogroup 4 "Vlc"
+autogroup 5 "Geany"
 
 command lock xlock
 command term xterm
+command jail-term "jail xterm"
 command xkill xkill
 command Thunar thunar
 command Geany geany
-command Chromium chrome
-command Claws claws-mail
-command Filezilla filezilla
-command VLC vlc
-command Gimp gimp
-command LibreOffice soffice
+command Chromium "jail chrome"
+command Claws "jail claws-mail"
+command Filezilla "jail filezilla"
+command VLC "jail vlc"
+command Gimp "jail gimp"
+command LibreOffice "jail soffice"
 
 mousebind M-1 window_move
 mousebind M-2 unmap
