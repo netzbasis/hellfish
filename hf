@@ -21,8 +21,8 @@ hf_main() {
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
-		bsd.rd) hf_download_bsdrd;;
-		upgrade) hf_upgrade "$2" "$3";;
+		bsd.rd|rd) hf_download_bsdrd;;
+		upgrade|up) hf_upgrade "$2" "$3";;
 		test) hf_test;; #test hook for new functions
 		*) hf_usage;;
 	esac
@@ -49,8 +49,8 @@ hf_usage() {
 	printf "\t[-a] also clean hellfish repo\n"
 	echo "reset (re): reset uncommited changes"
 	printf "\t[-a] also reset hellfish repo\n"
-	echo "bsd.rd: download and install bsd.rd"
-	echo "upgrade: download sets and kernels"
+	echo "bsd.rd (rd): download and install bsd.rd"
+	echo "upgrade (up): download sets and kernels"
 	printf "\t[-u] upgrade system after download\n\t[-r] reboot\n"
 	dpop
 }
