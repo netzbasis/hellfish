@@ -14,7 +14,7 @@ hf_main() {
 		cvs) hf_cvs_up "$2";;
 		pull) hf_pull;;
 		push) hf_push;;
-		kernel|ke) hf_make_kernel "$2" "$3";;
+		kernel|ke) hf_make_kernel "$2";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
 		hellfish|hf) hf_recreate_exp_branch;;
@@ -22,10 +22,11 @@ hf_main() {
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd;;
-		upgrade|up) hf_upgrade "$2" "$3";;
+		upgrade|up) hf_upgrade "$2";;
 		test) hf_test;; #test hook for new functions
 		*) hf_usage;;
 	esac
+	[ "x$3" = "x-r" ] && hf__command "./" "$SUDO reboot&"
 	dpop
 }
 
@@ -128,7 +129,7 @@ hf_make_build() {
 	dpop
 }
 
-# $1 install, $2 reboot
+# $1 install
 hf_make_kernel() {
 	dpush "make_kernel"
 	hf_fill_githash_for_logging $SRCNAME
@@ -137,7 +138,6 @@ hf_make_kernel() {
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
 
 	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$SUDO make install"
-	[ "x$2" = "x-r" ] && hf__command "./" "$SUDO reboot&"
 	dpop
 }
 
@@ -222,14 +222,13 @@ hf_commit_all() {
 	dpop
 }
 
-# $1 install sets flag $2 reboot flag
+# $1 install sets flag
 hf_upgrade() {
 	dpush "upgrade"
 	hf_get_verify_filelist
 	hf__command "$HFTEMP" "while read line; do ftp -C $MIRROR/\$line; done < file.list"
 	hf__command "$HFTEMP" "while read line; do sha256 -C SHA256 \$line; done < file.list"
 	[ "x$1" == "x-u" ] && hf__command "$HFTEMP" "$SUDO ../../files/scripts/Upgrade.sh"
-	[ "x$2" = "x-r" ] && hf__command "./" "$SUDO reboot&"
 	dpop
 }
 
