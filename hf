@@ -23,7 +23,7 @@ hf_main() {
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd;;
 		upgrade|up) hf_upgrade "$2";;
-		test) hf_test;; #test hook for new functions
+		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
 	[ "x$3" = "x-r" ] && hf__command "./" "$SUDO reboot&"
@@ -53,6 +53,13 @@ hf_usage() {
 	echo "bsd.rd (rd): download and install bsd.rd"
 	echo "upgrade (up): download sets and kernels"
 	printf "\t[-u] upgrade system after download\n\t[-r] reboot\n"
+	dpop
+}
+
+# $@ all parameters
+hf_run() {
+	dpush "run"
+	$2 "$3" "$4" "$5"
 	dpop
 }
 
