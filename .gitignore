@@ -1,4 +1,5 @@
-obj
+obj/
 *.err.log
+/tmp/
 CVS
 CVSROOT
