@@ -159,6 +159,10 @@ hf_cvs_up() {
 	hf_create_cvs_folders $XENOCARANAME
 
 	hf_command "cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
+
+	#truncate log to 1mio. lines.
+	tail -1000000 $CVSYNC_LOG_FILE > xxx.err.log
+	mv xxx.err.log $CVSYNC_LOG_FILE
 	dpop
 }
 
