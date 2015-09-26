@@ -246,7 +246,7 @@ hf_upgrade() {
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
 	hf_get_verify_filelist
-	hf__command "$HFTEMP" "ftp -C $MIRROR/bsd.rd"
+	hf__command "$HFTEMP" "ftp -C $MIRROR/bsd.rd" 1
 	hf__command "$HFTEMP" "sha256 -C SHA256 bsd.rd"
 	hf__command "$HFTEMP" "$SUDO cp bsd.rd /bsd.rd"
 	dpop
