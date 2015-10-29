@@ -121,7 +121,7 @@ hf_make_xenocara() {
 	hf__command "$XENOCARANAME" "make clean"
 	hf__command "$XENOCARANAME" "make obj"
 	hf__command "$XENOCARANAME" "make bootstrap"
-	hf__command "$XENOCARANAME" "make build | tee ${LOG_FILE}"
+	hf__command "$XENOCARANAME" "make build | tee -a ${LOG_FILE}"
 	dpop
 }
 
@@ -132,7 +132,7 @@ hf_make_build() {
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
 	hf__command "$SRCNAME/etc" "$SUDO env DESTDIR=/ make distrib-dirs"
-	hf__command "$SRCNAME" "make build | tee ${LOG_FILE}"
+	hf__command "$SRCNAME" "make build | tee -a ${LOG_FILE}"
 	dpop
 }
 
@@ -142,7 +142,7 @@ hf_make_kernel() {
 	hf_fill_githash_for_logging $SRCNAME
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/conf" "config $KERNEL"
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make clean"
-	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee ${LOG_FILE}"
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make | tee -a ${LOG_FILE}"
 
 	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$SUDO make install"
 	dpop
@@ -264,7 +264,7 @@ hf_get_verify_filelist() {
 # $1 return value
 hf_error() {
 	echo "ERROR: $(__stop_timer) $DEBUG_PRINT_STACK $1" >> $TIME_LOG_FILE
-	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD" | tee $TIME_LOG_FILE
+	[ -n "$ERRCMD" ] && echo "ERRCMD: $ERRCMD" | tee -a $TIME_LOG_FILE
 	ERRCMD=""
 	dprint_trace_exit_if_error $1
 }
