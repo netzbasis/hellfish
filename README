@@ -8,29 +8,30 @@ The hellfish repository wraps 4 submodules for src, ports, xenocara and www, as 
 
 TOOL
 hf - some sort of 'swiss army knife' for working with -current
-usage as of Aug 9 2015
-./hf <command> [option] "input"
+usage as of Nov 9 2015
+usage: ./hf <command> [option] "input"
 available commands (aliases)
 cvsync (cs): sync cvs repos and git repos
-        [-p] push git repos after sync
+	[-p] push git repos after sync
 cvs: make git workdirs cvs compatible
-        [-s] first sync cvs repo, but not git
+	[-s] first sync cvs repo, but not git
 pull: pull all git repos
 push: push all git repos
 kernel (ke): build kernel
-        [-i] install
-        [-r] reboot
+	[-i] install
+	[-r] reboot
 userland (us): build userland
 xenocara (xe): build xenocara
 hellfish (hf): recreate experimental branch
 cmd: execute command in all submodules
 clean (cl): clean untracked files
-        [-a] also clean hellfish repo
+	[-a] also clean hellfish repo
 reset (re): reset uncommited changes
-        [-a] also reset hellfish repo
-bsd.rd: download and install bsd.rd
-upgrade: download sets and kernels
-        [-u] upgrade system after download
+	[-a] also reset hellfish repo
+bsd.rd (rd): download and install bsd.rd
+upgrade (up): download sets and kernels
+	[-u] upgrade system after download
+	[-r] reboot
 
 READ
 * http://www.openbsd.org/faq/index.html
@@ -45,5 +46,5 @@ REQUIREMENTS
 * openbsd current or at least a recent snapshot
 * cvsync
 * git
-* 6GB of space for $CVSROOT
-* 3GB of space for $HFDIR
+* min. 8GB of space for $CVSROOT
+* min. 4GB of space for $HFDIR

@@ -32,7 +32,7 @@ hf_main() {
 
 hf_usage() {
 	dpush "usage"
-	echo "usage: $0 <command> [option] \"input\" ..."
+	echo "usage: $0 <command> [option] \"input\""
 	echo "available commands (aliases)"
 	echo "cvsync (cs): sync cvs repos and git repos"
 	printf "\t[-p] push git repos after sync\n"
