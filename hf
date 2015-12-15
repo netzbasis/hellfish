@@ -32,27 +32,31 @@ hf_main() {
 
 hf_usage() {
 	dpush "usage"
-	echo "usage: $0 <command> [option] \"input\""
-	echo "available commands (aliases)"
-	echo "cvsync (cs): sync cvs repos and git repos"
-	printf "\t[-p] push git repos after sync\n"
-	echo "cvs: make git workdirs cvs compatible"
-	printf "\t[-s] first sync cvs repo, but not git\n"
-	echo "pull: pull all git repos"
-	echo "push: push all git repos"
-	echo "kernel (ke): build kernel"
-	printf "\t[-i] install\n\t[-r] reboot\n"
-	echo "userland (us): build userland"
-	echo "xenocara (xe): build xenocara"
-	echo "hellfish (hf): recreate experimental branch"
-	echo "cmd: execute command in all submodules"
-	echo "clean (cl): clean untracked files"
-	printf "\t[-a] also clean hellfish repo\n"
-	echo "reset (re): reset uncommited changes"
-	printf "\t[-a] also reset hellfish repo\n"
-	echo "bsd.rd (rd): download and install bsd.rd"
-	echo "upgrade (up): download sets and kernels"
-	printf "\t[-u] upgrade system after download\n\t[-r] reboot\n"
+	cat <<EOF
+usage: $0 <command> [option] "input"
+available commands (aliases)
+cvsync (cs): sync cvs repos and git repos
+	[-p] push git repos after sync
+cvs: make git workdirs cvs compatible
+	[-s] first sync cvs repo, but not git
+pull: pull all git repos
+push: push all git repos
+kernel (ke): build kernel
+	[-i] install
+	[-r] reboot
+userland (us): build userland
+xenocara (xe): build xenocara
+hellfish (hf): recreate experimental branch
+cmd: execute command in all submodules
+clean (cl): clean untracked files
+	[-a] also clean hellfish repo
+reset (re): reset uncommited changes
+	[-a] also reset hellfish repo
+bsd.rd (rd): download and install bsd.rd
+upgrade (up): download sets and kernels
+	[-u] upgrade system after download
+	[-r] reboot
+EOF
 	dpop
 }
 
