@@ -22,7 +22,7 @@ hf_main() {
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd;;
-		upgrade|up) hf_upgrade "$2";;
+		upgrade|up) hf_upgrade "$2" "$3";;
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
@@ -251,7 +251,7 @@ hf_commit_all() {
 hf_upgrade() {
 	dpush "upgrade"
 	[ "x$1" == "x-a" ] && export ARCH=$2  &&
-	    export $DOWNL=$MIRROR/$ARCH &&
+	    export DOWNL=$MIRROR/$ARCH &&
 	    export HFTEMPDATE=$HFTEMPDATE/$ARCH
 	hf_get_verify_filelist
 	hf__command "$HFTEMPDATE" "while read line; do ftp -C $DOWNL/\$line; done < file.list" 1
