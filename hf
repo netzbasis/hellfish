@@ -274,7 +274,7 @@ hf_get_verify_filelist() {
 	hf__command "./" "mkdir -p -m 744 $HFTEMPDATE"
 	hf__command "$HFTEMPDATE" "ftp $DOWNL/SHA256.sig"
 	hf__command "$HFTEMPDATE" "signify -Vep $BASEPUBKEY -x SHA256.sig -m SHA256"
-	hf__command "$HFTEMPDATE" "cut -d ' ' -f 2 SHA256 | tr -d '(' | tr -d ')' | grep -e bsd -e .tgz > file.list"
+	hf__command "$HFTEMPDATE" "cut -d ' ' -f 2 SHA256 | tr -d '(' | tr -d ')' | grep -e miniroot -e bsd -e .tgz > file.list"
 	dpop
 }
 
