@@ -173,10 +173,6 @@ hf_cvs_up() {
 	hf_create_cvs_folders $XENOCARANAME
 
 	hf_command "cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
-
-	#truncate log
-	tail -100000 $CVSYNC_LOG_FILE > xxx.err.log
-	mv xxx.err.log $CVSYNC_LOG_FILE
 	dpop
 }
 
@@ -291,12 +287,22 @@ hf_fill_githash_for_logging() {
 	GITHASH=`cd $HFDIR/$1 && git rev-parse HEAD`
 }
 
+# $1 lenght of lines to keep
+hf_truncate_logs() {
+	for file in *.err.log
+	do
+		tail -$1 $file > xxx.err.log
+		mv xxx.err.log $file
+	done
+}
+
 ### main ###
 GITHASH=""
 HFTEMPDATE=$HFTEMP/$(__get_formated_date)
 __start_timer
 
 hf_main "$@"
+hf_truncate_logs 100000
 
 echo "$(__stop_timer) $@ $GITHASH" >> $TIME_LOG_FILE
 echo "===> time elapsed $(__stop_timer) <==="
