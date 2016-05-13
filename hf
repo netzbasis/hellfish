@@ -295,6 +295,7 @@ hf_fill_githash_for_logging() {
 hf_truncate_logs() {
 	for file in *.err.log
 	do
+		[ $file = "*.err.log" ] && break
 		SIZE=$(du -k $file | cut -f1)
 		if [ $SIZE -ge 40000 ]
 		then
