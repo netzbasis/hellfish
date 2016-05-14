@@ -291,13 +291,13 @@ hf_fill_githash_for_logging() {
 	GITHASH=`cd $HFDIR/$1 && git rev-parse HEAD`
 }
 
-# $1 lenght of lines to keep
+# $1 lenght of lines to keep $2 min size in kb to truncate
 hf_truncate_logs() {
 	for file in *.err.log
 	do
 		[ $file = "*.err.log" ] && break
 		SIZE=$(du -k $file | cut -f1)
-		if [ $SIZE -ge 40000 ]
+		if [ $SIZE -ge $2 ]
 		then
 			tail -$1 $file > xxx.err.log
 			mv xxx.err.log $file
@@ -311,7 +311,7 @@ HFTEMPDATE=$HFTEMP/$(__get_formated_date)
 __start_timer
 
 hf_main "$@"
-hf_truncate_logs 100000
+hf_truncate_logs 100000 40000
 
 echo "$(__stop_timer) $@ $GITHASH" >> $TIME_LOG_FILE
 echo "===> time elapsed $(__stop_timer) <==="
