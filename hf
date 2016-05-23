@@ -243,7 +243,7 @@ hf_commit_all() {
 	dpop
 }
 
-# $1 install sets flag $2 optional arch name
+# $1 install sets flag OR arch flag $2 optional arch name
 hf_upgrade() {
 	dpush "upgrade"
 	[ "x$1" == "x-a" ] && export ARCH=$2  &&
@@ -256,7 +256,7 @@ hf_upgrade() {
 	#link to last downloaded sets
 	$(cd $HFTEMP && ln -sf $(__get_formated_date) last)
 
-	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$SUDO ../../files/scripts/Upgrade.sh"
+	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$SUDO $HFDIR/files/scripts/Upgrade.sh"
 	dpop
 }
 
