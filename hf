@@ -17,7 +17,7 @@ hf_main() {
 		kernel|ke) hf_make_kernel "$2";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
-		hellfish|hf) hf_recreate_exp_branch;;
+		hellfish|hf) hf_recreate_exp_branch "$2";;
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
@@ -47,6 +47,7 @@ kernel (ke): build kernel
 userland (us): build userland
 xenocara (xe): build xenocara
 hellfish (hf): recreate experimental branch
+	[-d] delete experimental branch
 cmd: execute command in all submodules
 clean (cl): clean untracked files
 	[-a] also clean hellfish repo
@@ -110,10 +111,14 @@ hf_reset() {
 	dpop
 }
 
+# $1 delete flag
 hf_recreate_exp_branch() {
 	dpush "recreate_exp_branch"
 	hf_command "git checkout master"
 	hf_command "git branch -D $EXPERIMENTAL_BRANCH" 1
+
+	[ "x$1" = "x-d" ] && return
+
 	hf_command "git checkout -b $EXPERIMENTAL_BRANCH"
 	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do git merge --no-ff -m \"Merge \$line into $EXPERIMENTAL_BRANCH\" \$line; done"
 	dpop
