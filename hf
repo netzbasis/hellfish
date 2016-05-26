@@ -23,6 +23,7 @@ hf_main() {
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd;;
 		upgrade|up) hf_upgrade "$2" "$3";;
+		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
@@ -58,6 +59,7 @@ upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
 	[-r] reboot
+info: show info
 EOF
 	dpop
 }
@@ -92,6 +94,12 @@ hf__command() {
 	    [ $RET -gt $ERR ] && ERRCMD="$2" && hf_error $RET
 	cd "$HFDIR"
 	    [ $? -gt 0 ] && hf_error 127
+	dpop
+}
+
+hf_info() {
+	dpush "info"
+	hf_command "git branch"
 	dpop
 }
 
