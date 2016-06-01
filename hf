@@ -48,6 +48,7 @@ kernel (ke): build kernel
 userland (us): build userland
 xenocara (xe): build xenocara
 hellfish (hf): recreate experimental branch
+	[-p] pull first
 	[-d] delete experimental branch
 cmd: execute command in all submodules
 clean (cl): clean untracked files
@@ -122,6 +123,8 @@ hf_reset() {
 # $1 delete flag
 hf_recreate_exp_branch() {
 	dpush "recreate_exp_branch"
+	[ "x$1" = "x-p" ] && hf_pull
+
 	hf_command "git checkout master"
 	hf_command "git branch -D $EXPERIMENTAL_BRANCH" 1
 
@@ -204,7 +207,7 @@ hf_create_cvs_folders() {
 
 hf_push() {
 	dpush "push"
-	hf_command "git push"
+	hf_command "git push --all"
 	hf__command "./" "git push"
 	dpop
 }
@@ -266,8 +269,8 @@ hf_upgrade() {
 	hf__command "$HFTEMPDATE" "while read line; do ftp -C $DOWNL/\$line; done < file.list" 1
 	hf__command "$HFTEMPDATE" "while read line; do sha256 -C SHA256 \$line; done < file.list"
 
-	#link to last downloaded sets
-	$(cd $HFTEMP && ln -sf $FORMATEDDATE last)
+	hf__command "$HFTEMP" "rm last" 1
+	hf__command "$HFTEMP" "ln -s $FORMATEDDATE last"
 
 	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$SUDO $HFDIR/files/scripts/Upgrade.sh"
 	dpop
