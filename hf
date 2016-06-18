@@ -86,7 +86,7 @@ hf_command() {
 hf__command() {
 	dpush "_command"
 	[ -z "$3" ] && ERR=0 || ERR="$3"
-	echo "===> PWD $1 CMD $2 <==="
+	echo "===> PWD $COLOR2$1$COLORR CMD $COLOR1$2$COLORR <==="
 	sleep 1
 	cd "$1"
 	    [ $? -gt 0 ] && hf_error 128
@@ -325,6 +325,9 @@ hf_truncate_logs() {
 GITHASH=""
 FORMATEDDATE=$(__get_formated_date)
 HFTEMPDATE=$HFTEMP/$FORMATEDDATE
+COLOR1=$(./files/scripts/TerminalColorEscapes.sh red - bold)
+COLOR2=$(./files/scripts/TerminalColorEscapes.sh magenta)
+COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
 __start_timer
 
 hf_main "$@"
