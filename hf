@@ -21,7 +21,7 @@ hf_main() {
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
-		bsd.rd|rd) hf_download_bsdrd;;
+		bsd.rd|rd) hf_download_bsdrd "$2";;
 		upgrade|up) hf_upgrade "$2" "$3";;
 		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
@@ -56,6 +56,7 @@ clean (cl): clean untracked files
 reset (re): reset uncommited changes
 	[-a] also reset hellfish repo
 bsd.rd (rd): download and install bsd.rd
+	[-u] also prepare for auto_upgrade
 upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
@@ -127,6 +128,7 @@ hf_recreate_exp_branch() {
 
 	hf_command "git checkout master"
 	hf_command "git branch -D $EXPERIMENTAL_BRANCH" 1
+	hf_command "git push origin :$EXPERIMENTAL_BRANCH" 1
 
 	[ "x$1" = "x-d" ] && return
 
@@ -276,13 +278,29 @@ hf_upgrade() {
 	dpop
 }
 
+# $1 auto_upgrade flag
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
 	hf_get_verify_filelist
 	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/bsd.rd" 1
 	hf__command "$HFTEMPDATE" "sha256 -C SHA256 bsd.rd"
+
+	[ "x$1" == "x-u" ] && hf_auto_bsdrd
+
 	hf__command "$HFTEMPDATE" "$SUDO cp bsd.rd /bsd.rd"
 	dpop
+}
+
+hf_auto_bsdrd() {
+	hf__command "./" "gcc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
+	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rd root.fs"
+	hf__command "$HFTEMPDATE" "mkdir root" 1
+	hf__command "$HFTEMPDATE" "doas vnconfig vnd3 root.fs"
+	hf__command "$HFTEMPDATE" "doas mount /dev/vnd3a $HFTEMPDATE/root"
+	hf__command "./" "doas cp files/conf/auto_upgrade.conf $HFTEMPDATE/root"
+	hf__command "$HFTEMPDATE" "doas umount /dev/vnd3a"
+	hf__command "$HFTEMPDATE" "doas vnconfig -u vnd3"
+	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rd root.fs"
 }
 
 hf_get_verify_filelist() {
