@@ -281,26 +281,31 @@ hf_upgrade() {
 # $1 auto_upgrade flag
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
+	A=""
+
 	hf_get_verify_filelist
 	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/bsd.rd" 1
 	hf__command "$HFTEMPDATE" "sha256 -C SHA256 bsd.rd"
 
-	[ "x$1" == "x-u" ] && hf_auto_bsdrd
+	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
 
-	hf__command "$HFTEMPDATE" "$SUDO cp bsd.rd /bsd.rd"
+	hf__command "$HFTEMPDATE" "$SUDO cp bsd.rd$A /bsd.rd"
 	dpop
 }
 
 hf_auto_bsdrd() {
-	hf__command "./" "gcc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
-	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rd root.fs"
+	dpush "auto_bsdrd"
 	hf__command "$HFTEMPDATE" "mkdir root" 1
-	hf__command "$HFTEMPDATE" "doas vnconfig vnd3 root.fs"
-	hf__command "$HFTEMPDATE" "doas mount /dev/vnd3a $HFTEMPDATE/root"
-	hf__command "./" "doas cp files/conf/auto_upgrade.conf $HFTEMPDATE/root"
-	hf__command "$HFTEMPDATE" "doas umount /dev/vnd3a"
-	hf__command "$HFTEMPDATE" "doas vnconfig -u vnd3"
-	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rd root.fs"
+	hf__command "$HFTEMPDATE" "cp bsd.rd bsd.rda"
+	hf__command "./" "gcc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
+	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rda root.fs"
+	hf__command "$HFTEMPDATE" "$SUDO vnconfig vnd3 root.fs"
+	hf__command "$HFTEMPDATE" "$SUDO mount /dev/vnd3a $HFTEMPDATE/root"
+	hf__command "./" "$SUDO cp files/conf/auto_upgrade.conf $HFTEMPDATE/root"
+	hf__command "$HFTEMPDATE" "$SUDO umount /dev/vnd3a"
+	hf__command "$HFTEMPDATE" "$SUDO vnconfig -u vnd3"
+	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rda root.fs"
+	dpop
 }
 
 hf_get_verify_filelist() {
