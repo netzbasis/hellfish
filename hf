@@ -302,6 +302,10 @@ hf_auto_bsdrd() {
 	hf__command "$HFTEMPDATE" "$SUDO vnconfig vnd3 root.fs"
 	hf__command "$HFTEMPDATE" "$SUDO mount /dev/vnd3a ./root"
 	hf__command "$HFTEMPDATE" "$SUDO cp $HFDIR/files/conf/auto_upgrade.conf ./root"
+
+	echo Ctrl-Z, Ctrl-C now to tweak bsd.rd roofs manually
+	sleep 5
+
 	hf__command "$HFTEMPDATE" "$SUDO umount /dev/vnd3a"
 	hf__command "$HFTEMPDATE" "$SUDO vnconfig -u vnd3"
 	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rda root.fs"
