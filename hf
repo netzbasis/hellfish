@@ -21,13 +21,14 @@ hf_main() {
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
-		bsd.rd|rd) hf_download_bsdrd "$2";;
+		bsd.rd|rd) hf_download_bsdrd "$2" "$3";;
 		upgrade|up) hf_upgrade "$2" "$3";;
 		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
 	[ "x$3" = "x-r" ] && hf__command "./" "$SUDO reboot&"
+	[ "x$4" = "x-r" ] && hf__command "./" "$SUDO reboot&"
 	dpop
 }
 
@@ -44,7 +45,6 @@ pull: pull all git repos
 push: push all git repos
 kernel (ke): build kernel
 	[-i] install
-	[-r] reboot
 userland (us): build userland
 xenocara (xe): build xenocara
 hellfish (hf): recreate experimental branch
@@ -57,10 +57,10 @@ reset (re): reset uncommited changes
 	[-a] also reset hellfish repo
 bsd.rd (rd): download and install bsd.rd
 	[-u] also prepare for auto_upgrade
+	[-d] download sets
 upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
-	[-r] reboot
 info: show info
 EOF
 	dpop
@@ -288,6 +288,7 @@ hf_download_bsdrd() {
 	hf__command "$HFTEMPDATE" "sha256 -C SHA256 bsd.rd"
 
 	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
+	[ "x$2" == "x-d" ] && hf_upgrade
 
 	hf__command "$HFTEMPDATE" "$SUDO cp bsd.rd$A /bsd.rd"
 	dpop
