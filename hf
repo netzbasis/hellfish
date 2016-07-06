@@ -271,8 +271,7 @@ hf_upgrade() {
 	hf__command "$HFTEMPDATE" "while read line; do ftp -C $DOWNL/\$line; done < file.list" 1
 	hf__command "$HFTEMPDATE" "while read line; do sha256 -C SHA256 \$line; done < file.list"
 
-	hf__command "$HFTEMP" "rm last" 1
-	hf__command "$HFTEMP" "ln -s $FORMATEDDATE last"
+	hf__command "$HFTEMP" "ln -shf $FORMATEDDATE last"
 
 	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$SUDO $HFDIR/files/scripts/Upgrade.sh"
 	dpop
@@ -304,7 +303,7 @@ hf_auto_bsdrd() {
 	hf__command "$HFTEMPDATE" "$SUDO mount /dev/vnd3a ./root"
 	hf__command "$HFTEMPDATE" "$SUDO cp $HFDIR/files/conf/auto_upgrade.conf ./root"
 
-	echo Ctrl-Z, Ctrl-C now to tweak bsd.rd roofs manually
+	echo Ctrl-Z, Ctrl-C now to tweak bsd.rd rootfs manually
 	sleep 5
 
 	hf__command "$HFTEMPDATE" "$SUDO umount /dev/vnd3a"
