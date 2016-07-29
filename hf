@@ -331,7 +331,7 @@ hf_error() {
 
 # $1 module name
 hf_fill_githash_for_logging() {
-	GITHASH=`cd $HFDIR/$1 && git rev-parse HEAD`
+	GITHASH=$(cd $HFDIR/$1 && git rev-parse HEAD)
 }
 
 # $1 lenght of lines to keep $2 min size in kb to truncate
