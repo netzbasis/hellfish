@@ -7,8 +7,8 @@ OpenBSD developers use cvs, don't bother them with git related stuff.
 The hellfish repository wraps 4 submodules for src, ports, xenocara and www, as well as a bunch of related stuff.
 
 TOOL
-hf - because git is soooo much better than cvs
-usage as of Apr 3 2016
+hf - because git is sooo much better than cvs
+usage as of Sep 4 2016
 usage: ./hf <command> [option] "input"
 available commands (aliases)
 cvsync (cs): sync cvs repos and git repos
@@ -19,20 +19,23 @@ pull: pull all git repos
 push: push all git repos
 kernel (ke): build kernel
 	[-i] install
-	[-r] reboot
 userland (us): build userland
 xenocara (xe): build xenocara
 hellfish (hf): recreate experimental branch
+	[-p] pull first
+	[-d] delete experimental branch
 cmd: execute command in all submodules
 clean (cl): clean untracked files
 	[-a] also clean hellfish repo
 reset (re): reset uncommited changes
 	[-a] also reset hellfish repo
 bsd.rd (rd): download and install bsd.rd
+	[-u] also prepare for auto_upgrade
+	[-d] download sets
 upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
-	[-r] reboot
+info: show info
 
 READ
 * http://www.openbsd.org/faq/index.html
