@@ -190,7 +190,7 @@ hf_cvs_up() {
 	hf_create_cvs_folders $WWWNAME
 	hf_create_cvs_folders $XENOCARANAME
 
-	hf_command "cvs -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf_command "$CVSBIN -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
 
@@ -247,10 +247,10 @@ hf_cvsync() {
 
 hf_cvs_checkout() {
 	dpush "cvs_cehckout"
-	hf__command "./" "cvs -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
-	hf__command "./" "cvs -d $CVSROOT co -P $WWWNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "$CVSBIN -d $CVSROOT co -P $SRCNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "$CVSBIN -d $CVSROOT co -P $PORTSNAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "$CVSBIN -d $CVSROOT co -P $XENOCARANAME >> $CVSYNC_LOG_FILE 2>&1" 1
+	hf__command "./" "$CVSBIN -d $CVSROOT co -P $WWWNAME >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
 
