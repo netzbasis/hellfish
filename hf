@@ -27,8 +27,8 @@ hf_main() {
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
-	[ "x$3" = "x-r" ] && hf__command "./" "$SUDO reboot&"
-	[ "x$4" = "x-r" ] && hf__command "./" "$SUDO reboot&"
+	[ "x$3" = "x-r" ] && hf__command "./" "$DOAS reboot&"
+	[ "x$4" = "x-r" ] && hf__command "./" "$DOAS reboot&"
 	dpop
 }
 
@@ -154,8 +154,7 @@ hf_make_build() {
 	hf__command "$BSDOBJDIR" "rm -rf *"
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
-	hf__command "$SRCNAME/etc" "$SUDO env DESTDIR=/ make distrib-dirs"
-	hf__command "$SRCNAME" "make build | tee -a ${LOG_FILE}"
+	hf__command "$SRCNAME" "$DOAS make build | tee -a ${LOG_FILE}"
 	dpop
 }
 
@@ -176,7 +175,7 @@ hf_make_kernel() {
 
 	[ -f ${HELLFILE} ] && cp ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL/version ${HFTEMP}/version
 
-	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$SUDO make install"
+	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$DOAS make install"
 	dpop
 }
 
@@ -273,7 +272,7 @@ hf_upgrade() {
 
 	hf__command "$HFTEMP" "ln -shf $FORMATEDDATE last"
 
-	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$SUDO $HFDIR/files/scripts/Upgrade.sh"
+	[ "x$1" == "x-u" ] && hf__command "$HFTEMPDATE" "$DOAS $HFDIR/files/scripts/Upgrade.sh"
 	dpop
 }
 
@@ -289,7 +288,7 @@ hf_download_bsdrd() {
 	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
 	[ "x$2" == "x-d" ] && hf_upgrade
 
-	hf__command "$HFTEMPDATE" "$SUDO cp bsd.rd$A /bsd.rd"
+	hf__command "$HFTEMPDATE" "$DOAS cp bsd.rd$A /bsd.rd"
 	dpop
 }
 
@@ -299,15 +298,15 @@ hf_auto_bsdrd() {
 	hf__command "$HFTEMPDATE" "cp bsd.rd bsd.rda"
 	hf__command "$HFDIR" "gcc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
 	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rda root.fs"
-	hf__command "$HFTEMPDATE" "$SUDO vnconfig vnd3 root.fs"
-	hf__command "$HFTEMPDATE" "$SUDO mount /dev/vnd3a ./root"
-	hf__command "$HFTEMPDATE" "$SUDO cp $HFDIR/files/conf/auto_upgrade.conf ./root"
+	hf__command "$HFTEMPDATE" "$DOAS vnconfig vnd3 root.fs"
+	hf__command "$HFTEMPDATE" "$DOAS mount /dev/vnd3a ./root"
+	hf__command "$HFTEMPDATE" "$DOAS cp $HFDIR/files/conf/auto_upgrade.conf ./root"
 
 	echo Ctrl-Z now to tweak bsd.rd rootfs manually
 	sleep 5
 
-	hf__command "$HFTEMPDATE" "$SUDO umount /dev/vnd3a"
-	hf__command "$HFTEMPDATE" "$SUDO vnconfig -u vnd3"
+	hf__command "$HFTEMPDATE" "$DOAS umount /dev/vnd3a"
+	hf__command "$HFTEMPDATE" "$DOAS vnconfig -u vnd3"
 	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rda root.fs"
 	dpop
 }
