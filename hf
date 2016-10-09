@@ -139,9 +139,6 @@ hf_recreate_exp_branch() {
 
 hf_make_xenocara() {
 	dpush "make_xenocara"
-	# XXX remove when xenocara has moved to the new build
-	export SUDO=/usr/bin/doas
-
 	hf_fill_githash_for_logging $XENOCARANAME
 	hf__command "$XOBJDIR" "rm -rf *"
 	hf__command "$XENOCARANAME" "make clean"
