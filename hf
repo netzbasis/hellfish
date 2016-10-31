@@ -21,7 +21,7 @@ hf_main() {
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
-		bsd.rd|rd) hf_download_bsdrd "$2" "$3";;
+		bsd.rd|rd) hf_download_bsdrd "$2" "$3" "$4";;
 		upgrade|up) hf_upgrade "$2" "$3";;
 		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
@@ -276,7 +276,7 @@ hf_upgrade() {
 	dpop
 }
 
-# $1 auto_upgrade flag
+# $1 auto_upgrade flag  $2 download sets flag $3 reboot flag
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
 	A=""
@@ -288,7 +288,15 @@ hf_download_bsdrd() {
 	[ "x$2" == "x-d" ] && hf_upgrade
 	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
 
-	hf__command "$HFTEMPDATE" "$DOAS cp bsd.rd$A /bsd.rd"
+	# install bsd.rd as /bsd if an immediate reboot was specified
+	if [ "x$3" == "x-r" ]
+	then
+		hf__command "$HFTEMPDATE" "$DOAS cp bsd.rd$A /nbsd"
+		hf__command "/" "$DOAS ln -f bsd bsd.old"
+		hf__command "/" "$DOAS mv nbsd bsd"
+	else
+		hf__command "$HFTEMPDATE" "$DOAS cp bsd.rd$A /bsd.rd"
+	fi
 	dpop
 }
 
@@ -314,7 +322,7 @@ hf_auto_bsdrd() {
 hf_get_verify_filelist() {
 	dpush "get_verify_filelist"
 	hf__command "./" "mkdir -p $HFTEMPDATE"
-	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/SHA256.sig"
+	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/SHA256.sig" 1
 	hf__command "$HFTEMPDATE" "signify -Vep $BASEPUBKEY -x SHA256.sig -m SHA256"
 	hf__command "$HFTEMPDATE" "cut -d ' ' -f 2 SHA256 | tr -d '(' | tr -d ')' | grep -v -e install -e SHA256 > file.list"
 	dpop
