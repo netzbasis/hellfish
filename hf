@@ -285,8 +285,8 @@ hf_download_bsdrd() {
 	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/bsd.rd" 1
 	hf__command "$HFTEMPDATE" "sha256 -C SHA256 bsd.rd"
 
-	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
 	[ "x$2" == "x-d" ] && hf_upgrade
+	[ "x$1" == "x-u" ] && hf_auto_bsdrd && A=a
 
 	hf__command "$HFTEMPDATE" "$DOAS cp bsd.rd$A /bsd.rd"
 	dpop
@@ -314,7 +314,7 @@ hf_auto_bsdrd() {
 hf_get_verify_filelist() {
 	dpush "get_verify_filelist"
 	hf__command "./" "mkdir -p $HFTEMPDATE"
-	hf__command "$HFTEMPDATE" "ftp $DOWNL/SHA256.sig"
+	hf__command "$HFTEMPDATE" "ftp -C $DOWNL/SHA256.sig"
 	hf__command "$HFTEMPDATE" "signify -Vep $BASEPUBKEY -x SHA256.sig -m SHA256"
 	hf__command "$HFTEMPDATE" "cut -d ' ' -f 2 SHA256 | tr -d '(' | tr -d ')' | grep -v -e install -e SHA256 > file.list"
 	dpop
