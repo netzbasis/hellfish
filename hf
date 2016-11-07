@@ -166,8 +166,9 @@ hf_make_kernel() {
 	HELLFILE=${BSDSRCDIR}/sys/arch/${ARCH}/conf/$EXPERIMENTAL_KERNEL
 	[ -f ${HELLFILE} ] && KERNEL=$EXPERIMENTAL_KERNEL
 
-	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/conf" "config $KERNEL"
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$DOAS make obj"
 	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make clean"
+	hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "make config"
 
 	[ -f ${HELLFILE} ] && [ -f ${HFTEMP}/version ] && cp ${HFTEMP}/version ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL/version
 
