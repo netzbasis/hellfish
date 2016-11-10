@@ -1,0 +1,9 @@
+Which disk is the root disk = sd0
+Root filesystem = sd0a
+Force checking of clean non-root filesystems = no
+Location of sets = disk
+Is the disk partition already mounted = y
+Pathname to the sets = /mnt/git/sets
+Set name(s) = done
+Location of sets = done
+
