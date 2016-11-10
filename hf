@@ -309,7 +309,7 @@ hf_auto_bsdrd() {
 	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rda root.fs"
 	hf__command "$HFTEMPDATE" "$DOAS vnconfig vnd3 root.fs"
 	hf__command "$HFTEMPDATE" "$DOAS mount /dev/vnd3a ./root"
-	hf__command "$HFTEMPDATE" "$DOAS cp $HFDIR/files/conf/auto_upgrade.conf ./root"
+	hf__command "$HFTEMPDATE" "$DOAS cp $HFDIR/files/conf/auto_upgrade.$HOSTNAME ./root/auto_upgrade.conf"
 
 	echo Ctrl-Z now to tweak bsd.rd rootfs manually
 	sleep 5
