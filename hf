@@ -17,6 +17,7 @@ hf_main() {
 		kernel|ke) hf_make_kernel "$2";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
+		release|re) hf_make_release;;
 		hellfish|hf) hf_recreate_exp_branch "$2";;
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
@@ -155,6 +156,16 @@ hf_make_build() {
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
 	hf__command "$SRCNAME" "$DOAS make build | tee -a ${LOG_FILE}"
+	dpop
+}
+
+hf_make_release() {
+	dpush "make_release"
+	hf__command "./" "mkdir $DEST/base" 1
+	hf__command "./" "mkdir $DEST/xbase" 1
+	#hf__command "./" "rm -rf $RELEASEDIR/*.*" 1
+	hf__command "./" "mkdir $RELEASEDIR" 1
+	echo "make release: not implemented"
 	dpop
 }
 
