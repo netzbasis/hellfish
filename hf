@@ -163,9 +163,17 @@ hf_make_release() {
 	dpush "make_release"
 	hf__command "./" "mkdir $DEST/base" 1
 	hf__command "./" "mkdir $DEST/xbase" 1
-	#hf__command "./" "rm -rf $RELEASEDIR/*.*" 1
+	hf__command "./" "rm -rf $RELEASEDIR/*" 1
 	hf__command "./" "mkdir $RELEASEDIR" 1
-	echo "make release: not implemented"
+
+	export RELEASEDIR="$DEST/base"
+	hf__command "$SRCNAME/etc" "$DOAS make release"
+	hf__command "$SRCNAME/distrib/sets" "sh checkflist"
+
+	export RELEASEDIR="$DEST/xbase"
+	hf__command "$XENOCARANAME" "$DOAS make release"
+
+	hf__command "./" "mv $RELEASEDIR $HFTEMPDATE"
 	dpop
 }
 
