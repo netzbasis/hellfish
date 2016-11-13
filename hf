@@ -144,8 +144,8 @@ hf_make_xenocara() {
 	hf__command "$XOBJDIR" "rm -rf *"
 	hf__command "$XENOCARANAME" "make clean"
 	hf__command "$XENOCARANAME" "make obj"
-	hf__command "$XENOCARANAME" "make bootstrap"
-	hf__command "$XENOCARANAME" "make build | tee -a ${LOG_FILE}"
+	hf__command "$XENOCARANAME" "$DOAS make bootstrap"
+	hf__command "$XENOCARANAME" "$DOAS make build | tee -a ${LOG_FILE}"
 	dpop
 }
 
