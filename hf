@@ -166,11 +166,11 @@ hf_make_release() {
 	hf__command "./" "rm -rf $RELEASEDIR/*" 1
 	hf__command "./" "mkdir $RELEASEDIR" 1
 
-	export RELEASEDIR="$DEST/base"
+	export DESTDIR="$DEST/base"
 	hf__command "$SRCNAME/etc" "$DOAS make release"
 	hf__command "$SRCNAME/distrib/sets" "sh checkflist"
 
-	export RELEASEDIR="$DEST/xbase"
+	export DESTDIR="$DEST/xbase"
 	hf__command "$XENOCARANAME" "$DOAS make release"
 
 	hf__command "./" "mv $RELEASEDIR $HFTEMPDATE"
