@@ -8,7 +8,7 @@ gap 0 0 0 0
 
 autogroup 1 "Claws-mail"
 autogroup 2 "XTerm"
-autogroup 3 "chromium-browser"
+autogroup 3 "Chromium-browser"
 autogroup 4 "Vlc"
 autogroup 5 "Geany"
 
@@ -19,14 +19,13 @@ command Claws "jail claws-mail"
 command VLC "jail vlc"
 command Geany geany
 command Thunar thunar
-command Filezilla "jail filezilla"
+command Filezilla "filezilla"
 command Gimp "jail gimp"
 command LibreOffice "jail soffice"
+command IntelliJ intellij
 command xlock xlock
 command xkill xkill
 
-mousebind M-1 window_move
-mousebind M-2 unmap
-mousebind M-3 window_resize
-mousebind M-4 rcyclegroup
-mousebind M-5 cyclegroup
+bind-mouse M-3 window-resize
+bind-mouse M-4 rcyclegroup
+bind-mouse M-5 cyclegroup
