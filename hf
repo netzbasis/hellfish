@@ -134,7 +134,7 @@ hf_recreate_exp_branch() {
 	[ "x$1" = "x-d" ] && dpop && return
 
 	hf_command "git checkout -b $EXPERIMENTAL_BRANCH"
-	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do git merge --no-ff -m \"Merge \$line into $EXPERIMENTAL_BRANCH\" \$line; done"
+	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do echo try merging \$line; git merge --no-ff -m \"Merge \$line into $EXPERIMENTAL_BRANCH\" \$line; done"
 	dpop
 }
 
