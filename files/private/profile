@@ -58,6 +58,15 @@ alias d="mixerctl outputs.master=-10"
 alias t="mixerctl outputs.master.mute=toggle"
 alias r="mixerctl outputs.master=100"
 
+bind -m '^L'='^C'clear'^J'
+
 setup
 export PS1='$HOSTNAME | ${PWD} $(git_branch) $(return_value)
 $USERPROMPT '
+
+cal
+echo ==== ==== ==== ==== ====
+calendar -B 7 -w
+echo ==== ==== ==== ==== ====
+calendar -A 14 -w
+
