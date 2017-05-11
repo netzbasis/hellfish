@@ -18,4 +18,4 @@ cd /dev
 echo "running sysmerge"
 sysmerge
 echo "upgrade complete. restart your system now. (/sbin/oreboot)"
-
+echo "maybe after reboot: installboot, ./MAKEDEV, fw_update"
