@@ -6,7 +6,8 @@ cp bsd /bsd.sp
 cp bsd.rd /bsd.rd
 mv /nbsd /bsd
 echo "extracting base system"
-for file in *.tgz
+cp /sbin/reboot /sbin/oreboot
+for file in [!b]*.tgz base*.tgz
 do
 	echo "untar: $file"
 	tar -zxphf $file -C /
@@ -16,5 +17,5 @@ cd /dev
 ./MAKEDEV all
 echo "running sysmerge"
 sysmerge
-echo "upgrade complete. restart your system now."
+echo "upgrade complete. restart your system now. (/sbin/oreboot)"
 
