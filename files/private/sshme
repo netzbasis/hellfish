@@ -1,0 +1,50 @@
+#!/bin/sh
+
+SSHME_CONFIG=~/.sshme.conf
+SSHME_RET=""
+
+sshme_usage() {
+	echo "usage: $0 [add/del <user@domain>] <regex>"
+	sshme_show_config
+	exit 1
+}
+
+sshme_main() {
+	[ "x$1" == "xadd" ] && sshme_add "$2"
+	[ "x$1" == "xdel" ] && sshme_del "$2"
+	
+	sshme_grep_entry $1
+	ssh $SSHME_RET
+	exit $?
+}
+
+sshme_add() {
+	echo "$1" >> $SSHME_CONFIG	
+	sshme_show_config
+	exit 0
+}
+
+sshme_del() {
+	sshme_grep_entry $1
+	# not reached if not uniq
+	D=`grep -v "$1" $SSHME_CONFIG`
+	printf "$D\n" > $SSHME_CONFIG
+	sshme_show_config
+	exit 0
+}
+
+sshme_show_config() {
+	A=`sort $SSHME_CONFIG | uniq`
+	echo "$A" > $SSHME_CONFIG
+	cat $SSHME_CONFIG
+}
+
+sshme_grep_entry() {
+	B=`grep "$1" $SSHME_CONFIG`
+	C=`printf "$B\n" | wc -l`
+	[ $C -le 0 ] && echo regex not found && exit 2
+	[ $C -ge 2 ] && echo regex not uniq && printf "$B\n" && exit 3
+	SSHME_RET="$B"
+}
+
+[ $# -gt 0 ] && sshme_main "$@" || sshme_usage "$@"
