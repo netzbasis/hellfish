@@ -1,5 +1,1 @@
-/bin/sh ~/bin/resumeloop &
-feh --bg-fill ~/.xbg.file
-xconsole
-conky
 cwm

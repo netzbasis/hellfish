@@ -1,0 +1,31 @@
+#!/bin/sh
+#Create encapsulated users via useradd(8)
+#Setup home dir files, groups, and permissions
+#    Example: .aucat_cookie, .config/,
+#    read perm on /home/*, rw perm on /dev/drm*
+#Setup /etc/doas.conf
+#    Example: permit nopass ben as enc
+#
+#
+#default user enc4
+NEWUSER=enc4
+
+#exit on no command
+[ -z "$1" ] && exit 1
+
+#switch user for some commands
+[ "$1" = "chrome" ] && NEWUSER=enc
+[ "$1" = "claws-mail" ] && NEWUSER=enc1
+[ "$1" = "vlc" ] && NEWUSER=enc2
+[ "$1" = "soffice" ] && NEWUSER=enc3
+[ "$1" = "xterm" ] && NEWUSER=cvsgit
+
+NEWHOME=/home/$NEWUSER
+
+#allow connection to xserver
+xhost +si:localuser:$NEWUSER
+#cd into new home, so there is no error like
+#"Cannot determine current working directory"
+cd $NEWHOME &&
+doas -u $NEWUSER env HOME=$NEWHOME "$@"
+xhost -si:localuser:$NEWUSER

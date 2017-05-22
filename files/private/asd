@@ -1,0 +1,19 @@
+#!/bin/sh
+wsconsctl display.brightness=100
+
+xrandr --output LVDS1 --auto --output HDMI2 --mode 1920x1200 --right-of LVDS1
+xset s 0 0
+xset dpms 0 0 0
+
+xwallpaper --zoom /home/ben/.xbg.file
+xconsole
+
+pkill usbhidaction
+usbhidaction -d -c ~/.usbhid.conf -f /dev/uhid1 >/dev/console 2>&1 &
+
+xterm -geometry 86x44-0+0 &
+xterm -geometry 86x45-0-23 &
+xterm -geometry 104x90+2097+0 &
+jail xterm -geometry 101x90+1366+0 &
+
+conky -qd &

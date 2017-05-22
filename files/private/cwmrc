@@ -15,6 +15,7 @@ autogroup 5 "Geany"
 command xterm xterm
 command jail-term "jail xterm"
 command Chromium "jail chrome"
+command Firefox "jail firefox"
 command Claws "jail claws-mail"
 command VLC "jail vlc"
 command Geany geany
@@ -23,6 +24,7 @@ command Filezilla "filezilla"
 command Gimp "jail gimp"
 command LibreOffice "jail soffice"
 command IntelliJ intellij
+command setup "/home/ben/bin/asd"
 command xlock xlock
 command xkill xkill
 
