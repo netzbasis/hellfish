@@ -18,6 +18,7 @@ NEWUSER=enc4
 [ "$1" = "claws-mail" ] && NEWUSER=enc1
 [ "$1" = "vlc" ] && NEWUSER=enc2
 [ "$1" = "soffice" ] && NEWUSER=enc3
+[ "$1" = "xterm" ] && NEWUSER=cvsgit
 
 NEWHOME=/home/$NEWUSER
 
@@ -26,5 +27,5 @@ xhost +si:localuser:$NEWUSER
 #cd into new home, so there is no error like
 #"Cannot determine current working directory"
 cd $NEWHOME &&
-doas -u $NEWUSER env HOME=$NEWHOME "$1"
+doas -u $NEWUSER env HOME=$NEWHOME "$@"
 xhost -si:localuser:$NEWUSER
