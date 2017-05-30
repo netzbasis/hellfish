@@ -10,8 +10,7 @@
 hf_main() {
 	dpush "main"
 	case "$1" in
-		cvsync|cs) hf_cvsync "$2";;
-		cvs) hf_cvs_up "$2";;
+		cvsync|cs) hf_cvsync "$2" "$3";;
 		pull) hf_pull;;
 		push) hf_push;;
 		kernel|ke) hf_make_kernel "$2";;
@@ -38,10 +37,9 @@ hf_usage() {
 	cat <<EOF
 usage: $0 <command> [option] "input"
 available commands (aliases)
-cvsync (cs): sync cvs repos and git repos
+cvsync (cs): sync cvs repos
+	[-g] sync git repos with cvs
 	[-p] push git repos after sync
-cvs: make git workdirs cvs compatible
-	[-s] first sync cvs repo, but not git
 pull: pull all git repos
 push: push all git repos
 kernel (ke): build kernel
@@ -199,16 +197,9 @@ hf_make_kernel() {
 	dpop
 }
 
-# $1 cvsync
+#XXX may be used later?
 hf_cvs_up() {
 	dpush "cvs_up"
-	[ "x$1" == "x-s" ] && hf_cvsync_only
-
-	hf_create_cvs_folders $SRCNAME
-	hf_create_cvs_folders $PORTSNAME
-	hf_create_cvs_folders $WWWNAME
-	hf_create_cvs_folders $XENOCARANAME
-
 	hf_command "$CVSBIN -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
 	dpop
 }
@@ -244,23 +235,20 @@ hf_pull() {
 	dpop
 }
 
-hf_cvsync_only() {
-	dpush "cvsync_only"
-	hf__command "./" "cvsync -c $CVSYNCCONF >> $CVSYNC_LOG_FILE"
-	dpop
-}
-
-# $1 push
+# $1 sync git $2 push
 hf_cvsync() {
 	dpush "cvsync"
-	hf_cvsync_only
-	hf_pull
-	hf_command "rm -rf *"
+	hf__command "./" "cvsync -c $CVSYNCCONF >> $CVSYNC_LOG_FILE"
 
-	hf_cvs_checkout
-	hf_commit_all
+	if [ "x$1" == "x-g" ]
+	then
+		hf_pull
+		hf_command "rm -rf *"
+		hf_cvs_checkout
+		hf_commit_all
+	fi
 
-	[ "x$1" == "x-p" ] && hf_push
+	[ "x$2" == "x-p" ] && hf_push
 	dpop
 }
 
