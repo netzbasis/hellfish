@@ -100,6 +100,11 @@ hf__command() {
 
 hf_info() {
 	dpush "info"
+	TS_CVSR=$(stat -t "%s" -f "%Sm" $CVSROOT/CVSROOT)
+	TS_NOW=$(__get_timestamp)
+	TS_DIFF=$(( $TS_NOW - TS_CVSR ))
+	echo last cvsync: $(( $TS_DIFF / 3600 )) hours ago / $(( $TS_DIFF / 3600 / 24 )) days ago
+	hf__command "./" "git status"
 	hf_command "git branch"
 	dpop
 }
