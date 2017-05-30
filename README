@@ -7,14 +7,11 @@ OpenBSD developers use cvs, don't bother them with git related stuff.
 The hellfish repository wraps 4 submodules for src, ports, xenocara and www, as well as a bunch of related stuff.
 
 TOOL
-hf - because git is sooo much better than cvs
-usage as of Sep 4 2016
+hf - usage as of May 30 2017
 usage: ./hf <command> [option] "input"
-available commands (aliases)
-cvsync (cs): sync cvs repos and git repos
+cvsync (cs): sync cvs repos
+	[-g] sync git repos with cvs
 	[-p] push git repos after sync
-cvs: make git workdirs cvs compatible
-	[-s] first sync cvs repo, but not git
 pull: pull all git repos
 push: push all git repos
 kernel (ke): build kernel
