@@ -197,26 +197,6 @@ hf_make_kernel() {
 	dpop
 }
 
-#XXX may be used later?
-hf_cvs_up() {
-	dpush "cvs_up"
-	hf_command "$CVSBIN -d $CVSROOT up -Pd >> $CVSYNC_LOG_FILE 2>&1" 1
-	dpop
-}
-
-# $1 subfolder
-hf_create_cvs_folders() {
-	dpush "create_cvs_folders"
-	find $1 -type d | while read line
-	do
-		mkdir $line/CVS &&
-		echo "$CVSROOT" > $line/CVS/Root &&
-		echo "$line" > $line/CVS/Repository &&
-		touch $line/CVS/Entries
-	done
-	dpop
-}
-
 hf_push() {
 	dpush "push"
 	hf_command "git push --all"
