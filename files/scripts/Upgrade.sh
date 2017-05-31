@@ -1,7 +1,7 @@
 #!/bin/sh -e
 echo "moving kernel"
+cmp -s bsd.mp /bsd || ln -f /bsd /obsd
 cp bsd.mp /nbsd
-ln -f /bsd /obsd
 cp bsd /bsd.sp
 cp bsd.rd /bsd.rd
 mv /nbsd /bsd
@@ -18,4 +18,4 @@ cd /dev
 echo "running sysmerge"
 sysmerge
 echo "upgrade complete. restart your system now. (/sbin/oreboot)"
-echo "maybe after reboot: installboot, ./MAKEDEV, fw_update"
+echo "maybe run: installboot, sysmerge, cd /dev && ./MAKEDEV, fw_update, pkg_add -u"
