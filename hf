@@ -156,6 +156,7 @@ hf_make_xenocara() {
 hf_make_build() {
 	dpush "make_build"
 	hf_fill_githash_for_logging $SRCNAME
+	hf__command "$BSDOBJDIR" "$DOAS rm -rf distrib"
 	hf__command "$BSDOBJDIR" "rm -rf *"
 	hf__command "$SRCNAME" "make clean"
 	hf__command "$SRCNAME" "make obj"
