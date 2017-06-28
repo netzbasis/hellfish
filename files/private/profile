@@ -61,7 +61,7 @@ alias r="mixerctl outputs.master=100"
 bind -m '^L'='^C'clear'^J'
 
 setup
-export PS1='$HOSTNAME | ${PWD} $(git_branch) $(return_value)
+export PS1='${HOSTNAME} | ${PWD} $(git_branch) $(return_value)
 $USERPROMPT '
 
 cal
