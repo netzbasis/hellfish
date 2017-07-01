@@ -177,7 +177,7 @@ hf_make_release() {
 	export DESTDIR="$DEST/xbase"
 	hf__command "$XENOCARANAME" "$DOAS make release"
 
-	hf__command "./" "mv $RELEASEDIR $HFTEMPDATE"
+	hf__command "./" "mv $RELEASEDIR ${HFTEMPDATE}custom"
 
 	hf__command "$SRCNAME/distrib/sets" "sh checkflist"
 	dpop
