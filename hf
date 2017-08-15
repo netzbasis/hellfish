@@ -147,7 +147,6 @@ hf_recreate_exp_branch() {
 hf_merge_master_into_branch() {
 	dpush "merge_master_into_branch"
 	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do echo try merging master into \$line; git checkout \$line; git merge master -m \"Merge master into \$line\"; done"
-	
 	dpop
 }
 
