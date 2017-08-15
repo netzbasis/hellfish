@@ -18,6 +18,7 @@ hf_main() {
 		xenocara|xe) hf_make_xenocara;;
 		release|re) hf_make_release;;
 		hellfish|hf) hf_recreate_exp_branch "$2";;
+		merge) hf_merge_master_into_branch;;
 		cmd) hf_command "$2";;
 		clean|cl) hf_clean "$2";;
 		reset|re) hf_reset "$2";;
@@ -54,6 +55,7 @@ cvsync (cs): sync cvs repos
 hellfish (hf): recreate experimental branch
 	[-p] pull first
 	[-d] delete experimental branch
+merge: merge master into hf-* branches
 clean (cl): clean untracked files
 	[-a] also clean hellfish repo
 reset (re): reset uncommited changes
@@ -139,6 +141,13 @@ hf_recreate_exp_branch() {
 
 	hf_command "git checkout -b $EXPERIMENTAL_BRANCH"
 	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do echo try merging \$line; git merge --no-ff -m \"Merge \$line into $EXPERIMENTAL_BRANCH\" \$line; done"
+	dpop
+}
+
+hf_merge_master_into_branch() {
+	dpush "merge_master_into_branch"
+	hf_command "git branch 2>/dev/null | grep 'hf-' | cut -c 3- | while read line; do echo try merging master into \$line; git checkout \$line; git merge master -m \"Merge master into \$line\"; done"
+	
 	dpop
 }
 
@@ -339,6 +348,14 @@ hf_fill_githash_for_logging() {
 	GITHASH=$(cd $HFDIR/$1 && git rev-parse HEAD)
 }
 
+hf_show_signify_key() {
+	dpush "show_signify_key"
+	echo $COLOR1$PKEY$COLORR
+	TAIL=$(tail -n 1 $BASEPUBKEY)
+	[ "$TAIL" != "$PKEY" ] && hf_error 91
+	dpop
+}
+
 # $1 lenght of lines to keep $2 min size in kb to truncate
 hf_truncate_logs() {
 	for file in *.err.log
@@ -362,6 +379,7 @@ COLOR2=$(./files/scripts/TerminalColorEscapes.sh magenta)
 COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
 __start_timer
 
+hf_show_signify_key
 hf_main "$@"
 hf_truncate_logs 100000 40000
 
