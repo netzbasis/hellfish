@@ -350,8 +350,6 @@ hf_fill_githash_for_logging() {
 hf_show_signify_key() {
 	dpush "show_signify_key"
 	echo $COLOR1$PKEY$COLORR
-	TAIL=$(tail -n 1 $BASEPUBKEY)
-	[ "$TAIL" != "$PKEY" ] && hf_error 91
 	dpop
 }
 
