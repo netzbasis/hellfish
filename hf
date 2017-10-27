@@ -24,6 +24,7 @@ hf_main() {
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd "$2" "$3" "$4";;
 		upgrade|up) hf_upgrade "$2" "$3";;
+		package|pkg) hf_pkg_upgrade;;
 		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
@@ -49,6 +50,7 @@ bsd.rd (rd): download and install bsd.rd
 upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
+package (pkg): upgrade packages
 cvsync (cs): sync cvs repos
 	[-g] sync git repos with cvs
 	[-p] push git repos after sync
@@ -109,6 +111,12 @@ hf_info() {
 	echo last cvsync: $(( $TS_DIFF / 3600 )) hours ago / $(( $TS_DIFF / 3600 / 24 )) days ago
 	hf__command "./" "git status"
 	hf_command "git branch"
+	dpop
+}
+
+hf_pkg_upgrade() {
+	dpush "pkg_upgrade"
+	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
 	dpop
 }
 
