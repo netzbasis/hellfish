@@ -1,17 +1,19 @@
 #!/bin/sh -e
-echo "moving kernel"
-cmp -s bsd.mp /bsd || ln -f /bsd /obsd
-cp bsd.mp /nbsd
-cp bsd /bsd.sp
-cp bsd.rd /bsd.rd
-mv /nbsd /bsd
+#echo "moving kernel"
+#cmp -s bsd.mp /bsd || ln -f /bsd /obsd
+#cp bsd.mp /nbsd
+#cp bsd /bsd.sp
+#cp bsd.rd /bsd.rd
+#mv /nbsd /bsd
 echo "extracting base system"
 cp /sbin/reboot /sbin/oreboot
 for file in [!b]*.tgz base*.tgz
 do
 	echo "untar: $file"
 	tar -zxphf $file -C /
-done 
+done
+echo "relinking kernel"
+/usr/libexec/reorder_kernel
 echo "running MAKEDEV"
 cd /dev
 ./MAKEDEV all
