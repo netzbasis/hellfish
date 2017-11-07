@@ -382,6 +382,7 @@ HFTEMPDATE=$HFTEMP/$FORMATEDDATE
 COLOR1=$(./files/scripts/TerminalColorEscapes.sh red - bold)
 COLOR2=$(./files/scripts/TerminalColorEscapes.sh magenta)
 COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
+[ -d "$PKG_CACHE" ] || unset PKG_CACHE
 __start_timer
 
 hf_show_signify_key
