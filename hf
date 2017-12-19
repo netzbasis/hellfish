@@ -116,7 +116,18 @@ hf_info() {
 
 hf_pkg_upgrade() {
 	dpush "pkg_upgrade"
+	if [ -n "${PKG_CACHE}" ]
+	then
+		hf__command "./" "$DOAS ftp -o ${PKG_CACHE}/index.html ${PKG_HTTP_DIR}"
+	fi
 	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
+	hf_pkg_cache_clean
+	dpop
+}
+
+hf_pkg_cache_clean() {
+	dpush "pkg_cache_clean"
+
 	dpop
 }
 
@@ -382,7 +393,12 @@ HFTEMPDATE=$HFTEMP/$FORMATEDDATE
 COLOR1=$(./files/scripts/TerminalColorEscapes.sh red - bold)
 COLOR2=$(./files/scripts/TerminalColorEscapes.sh magenta)
 COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
-[ -d "$PKG_CACHE" ] || unset PKG_CACHE
+if [ -d "$PKG_CACHE" ]
+then
+	export PKG_HTTP_DIR="${PKG_INSTALLURL}/snapshots/packages/${ARCH}/"
+else
+	unset PKG_CACHE
+fi
 __start_timer
 
 hf_show_signify_key
