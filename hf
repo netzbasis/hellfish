@@ -119,15 +119,48 @@ hf_pkg_upgrade() {
 	if [ -n "${PKG_CACHE}" ]
 	then
 		hf__command "./" "$DOAS ftp -o ${PKG_CACHE}/index.html ${PKG_HTTP_DIR}"
+		hf__command "./" "pkg_info | cut -f 1 -d \" \" > ${PKG_CACHE}/pkgs.txt"
+		while read line
+		do
+			grep "$line" ${PKG_CACHE}/index.html >/dev/null
+			if [ $? -eq 1 ]
+			then
+				hf_download_pkg "${line%-*}"
+			fi
+		done < ${PKG_CACHE}/pkgs.txt
+		
+		echo -n " waiting on downloads"
+		DL_COUNT=$(jobs | wc -l)
+		while [ $DL_COUNT -gt 0 ]
+		do
+			sleep 2
+			DL_COUNT=$(jobs | wc -l)	
+		done
+		echo " done"
 	fi
+
 	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
-	hf_pkg_cache_clean
 	dpop
 }
 
-hf_pkg_cache_clean() {
-	dpush "pkg_cache_clean"
-
+# $1 pkg to download
+hf_download_pkg() {
+	dpush "download_pkg" 
+	TMP_NAME=$(grep ${1%-*} ${PKG_CACHE}/index.html)
+	TMP_NAME2=$(echo "$TMP_NAME" | cut -f 2 -d ">" | cut -f 1 -d "<")
+	if [ -n "$TMP_NAME2" ]
+	then
+		# spin until download slots are available
+		DL_COUNT=$(jobs | wc -l)
+		while [ $DL_COUNT -gt 4 ]
+		do
+			sleep 2 
+			DL_COUNT=$(jobs | wc -l)	
+		done
+		
+		echo -n .
+		ftp -VM -o ${PKG_CACHE}/${1} ${PKG_HTTP_DIR}${TMP_NAME2}&
+	fi
 	dpop
 }
 
