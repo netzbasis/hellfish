@@ -123,17 +123,15 @@ hf_pkg_upgrade() {
 		while read line
 		do
 			grep "$line" ${PKG_CACHE}/index.html >/dev/null
-			if [ $? -eq 1 ]
-			then
-				hf_download_pkg "${line%-*}"
-			fi
+			[ $? -eq 1 ] && hf_download_pkg "${line%-*}"
 		done < ${PKG_CACHE}/pkgs.txt
 		
-		echo -n " waiting on downloads"
+		echo -n "waiting on downloads"
+		# spin until download are finished
 		DL_COUNT=$(jobs | wc -l)
 		while [ $DL_COUNT -gt 0 ]
 		do
-			sleep 2
+			sleep 1
 			DL_COUNT=$(jobs | wc -l)	
 		done
 		echo " done"
@@ -146,19 +144,20 @@ hf_pkg_upgrade() {
 # $1 pkg to download
 hf_download_pkg() {
 	dpush "download_pkg" 
-	TMP_NAME=$(grep ${1%-*} ${PKG_CACHE}/index.html)
+	TMP_NAME=$(grep ${1} ${PKG_CACHE}/index.html)
 	TMP_NAME2=$(echo "$TMP_NAME" | cut -f 2 -d ">" | cut -f 1 -d "<")
 	if [ -n "$TMP_NAME2" ]
 	then
 		# spin until download slots are available
 		DL_COUNT=$(jobs | wc -l)
-		while [ $DL_COUNT -gt 4 ]
+		while [ $DL_COUNT -ge 4 ]
 		do
-			sleep 2 
+			sleep 1 
 			DL_COUNT=$(jobs | wc -l)	
 		done
 		
 		echo -n .
+		# spawn in background
 		ftp -VM -o ${PKG_CACHE}/${1} ${PKG_HTTP_DIR}${TMP_NAME2}&
 	fi
 	dpop
@@ -429,6 +428,7 @@ COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
 if [ -d "$PKG_CACHE" ]
 then
 	export PKG_HTTP_DIR="${PKG_INSTALLURL}/snapshots/packages/${ARCH}/"
+	export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
 else
 	unset PKG_CACHE
 fi
