@@ -24,7 +24,7 @@ hf_main() {
 		reset|re) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd "$2" "$3" "$4";;
 		upgrade|up) hf_upgrade "$2" "$3";;
-		package|pkg) hf_pkg_upgrade;;
+		package|pkg) hf_pkg_upgrade "$2";;
 		info) hf_info;;
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
@@ -51,6 +51,7 @@ upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
 package (pkg): upgrade packages
+	[-d] download all
 cvsync (cs): sync cvs repos
 	[-g] sync git repos with cvs
 	[-p] push git repos after sync
@@ -114,6 +115,7 @@ hf_info() {
 	dpop
 }
 
+# $1 download all packages flag
 hf_pkg_upgrade() {
 	dpush "pkg_upgrade"
 	if [ -n "${PKG_CACHE}" ]
@@ -123,7 +125,7 @@ hf_pkg_upgrade() {
 		while read line
 		do
 			grep "$line" ${PKG_CACHE}/index.html >/dev/null
-			[ $? -eq 1 ] && hf_download_pkg "${line%-*}"
+			[ $? -eq 1 -o "x$1" = "x-d" ] && hf_download_pkg "${line%-*}"
 		done < ${PKG_CACHE}/pkgs.txt
 		
 		echo -n "waiting on downloads"
@@ -428,7 +430,8 @@ COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
 if [ -d "$PKG_CACHE" ]
 then
 	export PKG_HTTP_DIR="${PKG_INSTALLURL}/snapshots/packages/${ARCH}/"
-	export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
+	export PKG_PATH="$PKG_CACHE"
+	#export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
 else
 	unset PKG_CACHE
 fi
