@@ -148,6 +148,7 @@ hf_download_pkg() {
 	dpush "download_pkg" 
 	TMP_NAME=$(grep ${1} ${PKG_CACHE}/index.html)
 	TMP_NAME2=$(echo "$TMP_NAME" | cut -f 2 -d ">" | cut -f 1 -d "<")
+	TMP_NAME3=$(grep ${1} ${PKG_CACHE}/pkgs.txt)
 	if [ -n "$TMP_NAME2" ]
 	then
 		# spin until download slots are available
@@ -160,7 +161,7 @@ hf_download_pkg() {
 		
 		echo -n .
 		# spawn in background
-		ftp -VM -o ${PKG_CACHE}/${1} ${PKG_HTTP_DIR}${TMP_NAME2}&
+		ftp -VM -o "${PKG_CACHE}/${TMP_NAME2}" ${PKG_HTTP_DIR}${TMP_NAME2}&
 	fi
 	dpop
 }
