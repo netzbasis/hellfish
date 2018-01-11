@@ -51,7 +51,6 @@ upgrade (up): download sets and kernels
 	[-a] <arch> download sets for arch
 	[-u] upgrade system after download (the wrong way!)
 package (pkg): upgrade packages
-	[-d] download all
 cvsync (cs): sync cvs repos
 	[-g] sync git repos with cvs
 	[-p] push git repos after sync
@@ -115,29 +114,30 @@ hf_info() {
 	dpop
 }
 
-# $1 download all packages flag
+# $1 download all packages/download from http flag
 hf_pkg_upgrade() {
 	dpush "pkg_upgrade"
-	if [ -n "${PKG_CACHE}" ]
-	then
-		hf__command "./" "$DOAS ftp -o ${PKG_CACHE}/index.html ${PKG_HTTP_DIR}"
-		hf__command "./" "pkg_info | cut -f 1 -d \" \" > ${PKG_CACHE}/pkgs.txt"
-		while read line
-		do
-			grep "$line" ${PKG_CACHE}/index.html >/dev/null
-			[ $? -eq 1 -o "x$1" = "x-d" ] && hf_download_pkg "${line%-*}"
-		done < ${PKG_CACHE}/pkgs.txt
-		
-		echo -n "waiting on downloads"
-		# spin until download are finished
-		DL_COUNT=$(jobs | wc -l)
-		while [ $DL_COUNT -gt 0 ]
-		do
-			sleep 1
-			DL_COUNT=$(jobs | wc -l)	
-		done
-		echo " done"
-	fi
+#	if [ -n "${PKG_CACHE}" ]
+#	then
+#		hf__command "./" "$DOAS ftp -o ${PKG_CACHE}/index.html ${PKG_HTTP_DIR}"
+#		hf__command "./" "pkg_info | cut -f 1 -d \" \" > ${PKG_CACHE}/pkgs.txt"
+#		[ "x$1" = "x-h" ] && export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
+#		while read line
+#		do
+#			grep "$line" ${PKG_CACHE}/index.html >/dev/null
+#			[ $? -eq 1 -o "x$1" = "x-d" ] && hf_download_pkg "${line%-*}"
+#		done < ${PKG_CACHE}/pkgs.txt
+#		
+#		echo -n "waiting on downloads"
+#		# spin until download are finished
+#		DL_COUNT=$(jobs | wc -l)
+#		while [ $DL_COUNT -gt 0 ]
+#		do
+#			sleep 1
+#			DL_COUNT=$(jobs | wc -l)	
+#		done
+#		echo " done"
+#	fi
 
 	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
 	dpop
@@ -431,8 +431,7 @@ COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
 if [ -d "$PKG_CACHE" ]
 then
 	export PKG_HTTP_DIR="${PKG_INSTALLURL}/snapshots/packages/${ARCH}/"
-	export PKG_PATH="$PKG_CACHE"
-	#export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
+#	export PKG_PATH="$PKG_CACHE"
 else
 	unset PKG_CACHE
 fi
