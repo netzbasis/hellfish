@@ -29,8 +29,7 @@ hf_main() {
 		run) hf_run "$@";; #test hook for new functions
 		*) hf_usage;;
 	esac
-	[ "x$3" = "x-r" ] && hf__command "./" "$DOAS reboot&"
-	[ "x$4" = "x-r" ] && hf__command "./" "$DOAS reboot&"
+	[ "x$3" = "x-r" -o "x$4" = "x-r" ] && hf__command "./" "$DOAS reboot&"
 	dpop
 }
 
@@ -127,14 +126,14 @@ hf_pkg_upgrade() {
 #			grep "$line" ${PKG_CACHE}/index.html >/dev/null
 #			[ $? -eq 1 -o "x$1" = "x-d" ] && hf_download_pkg "${line%-*}"
 #		done < ${PKG_CACHE}/pkgs.txt
-#		
+#
 #		echo -n "waiting on downloads"
 #		# spin until download are finished
 #		DL_COUNT=$(jobs | wc -l)
 #		while [ $DL_COUNT -gt 0 ]
 #		do
 #			sleep 1
-#			DL_COUNT=$(jobs | wc -l)	
+#			DL_COUNT=$(jobs | wc -l)
 #		done
 #		echo " done"
 #	fi
