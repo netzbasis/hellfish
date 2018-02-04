@@ -1,0 +1,253 @@
+#!/bin/ksh
+ETCDIR="/etc"
+#ETCDIR="~/Projects/hostnamed/etc"
+TMPDIR=$(mktemp -d /tmp/nwctl.XXXXXXXXXX) || exit 2
+O_ACTIVATE=0
+O_ADD=0
+O_DEL=0
+O_IF=0
+F_LIST=0
+F_BEST=0
+F_VERBOSE=0
+F_NOT=0
+F_DISABLE=0
+F_HELP=0
+F_NETSTART=0
+
+#$* all options
+parse_opt() {
+	local _args
+	
+	[ $# -eq 0 ] && show_usage && exit 1
+	_args=$(getopt a:bd:hi:lnt:vx $*)
+	[ $? -ne 0 ] && show_usage && exit 1
+	set -- $_args
+	while [ $# -ne 0 ]
+	do
+		case "$1"
+		in
+			-a)
+				O_ACTIVATE="$2"; shift; shift;;
+			-b)
+				F_BEST=1; shift;;
+			-d)
+				O_DEL="$2"; shift; shift;;
+			-h)
+				F_HELP=1; shift;;
+			-i)
+				O_IF="$2"; shift; shift;;
+			-l)
+				F_LIST=1; shift;;
+			-n)
+				F_NOT=1; shift;;
+			-t)
+				O_ADD="$2"; shift; shift;;
+			-v)
+				F_VERBOSE=1; shift;;	
+			-x)
+				F_DISABLE=1; shift;;
+			--)
+				shift; break;;
+		esac
+	done
+
+	if [ "$O_ACTIVATE" == "0" -a "$O_ADD" == "0" -a "$O_DEL" == "0" -a "$F_DISABLE" == "0" -a "$F_BEST" == "0" ]
+	then
+		F_NOT=1
+	fi
+}
+
+init_state() {
+	local _device
+	local _tag
+
+	[ $F_VERBOSE -gt 0 ] && echo ">>> parsing config"
+	ls $ETCDIR/hostname.* > $TMPDIR/files
+	cut -d "." -f 2 $TMPDIR/files > $TMPDIR/devices
+	while read _device
+	do
+		grep -v -e '#' -e '^$' $ETCDIR/hostname.$_device > $TMPDIR/$_device.active
+		grep '#*:' $ETCDIR/hostname.$_device | cut -d ':' -f 1 | tr -d '#' | uniq > $TMPDIR/$_device.tags 
+		while read _tag
+		do
+			grep "#$_tag:" $ETCDIR/hostname.$_device | cut -d ':' -f 2- > $TMPDIR/tag.$_device.$_tag
+		done < $TMPDIR/$_device.tags
+	done < $TMPDIR/devices
+}
+
+main_switch() {
+	[ $F_HELP -gt 0 ] && show_usage
+	[ $F_LIST -gt 0 ] && show_config
+
+	if [ "$O_ADD" != "0" ]
+	then
+		[ "$O_IF" != "0" ] && add_tag || echo "-t needs -i" 
+	fi
+
+	if [ "$O_DEL" != "0" ]
+	then
+		[ "$O_IF" != "0" ] && del_tag || echo "-d needs -i"
+	fi
+
+	if [ "$O_ACTIVATE" != "0" ]
+	then
+		[ "$O_IF" != "0" ] && activate_tag || echo "-a needs -i"
+	fi	
+
+	if [ $F_BEST -gt 0 ]
+	then
+		[ "$O_IF" != "0" ] && connect_best_nw || echo "-b needs -i"
+	fi
+
+	if [ $F_DISABLE -gt 0 ]
+	then
+		[ "$O_IF" != "0" ] && disable_if || echo "-x needs -i"
+	fi	
+}
+
+show_config() {
+	local _device
+	local _tag
+
+	while read _device
+	do
+		[ $O_IF != "0" -a $O_IF != $_device ] && continue
+		[ $F_VERBOSE -gt 0 ] && ifconfig $_device || echo $_device:
+		echo "\tACTIVE CONFIGURATION"
+		nl $TMPDIR/$_device.active
+		echo "\tCONFIGURED TAGS"
+		nl $TMPDIR/$_device.tags
+	done < $TMPDIR/devices
+}
+
+add_tag() {
+	[ $F_VERBOSE -gt 0 ] && echo ">>> adding tag"
+	$EDITOR $TMPDIR/tag.$O_IF.$O_ADD
+	echo $O_ADD >> $TMPDIR/$O_IF.tags
+	sort $TMPDIR/$O_IF.tags | uniq > $TMPDIR/$O_IF.tags.uniq
+	mv $TMPDIR/$O_IF.tags.uniq $TMPDIR/$O_IF.tags
+}
+
+del_tag() {
+	[ $F_VERBOSE -gt 0 ] && echo ">>> deleting tag"
+	grep -v "^$O_DEL$" $TMPDIR/$O_IF.tags > $TMPDIR/$O_IF.tags.uniq
+	mv $TMPDIR/$O_IF.tags.uniq $TMPDIR/$O_IF.tags
+}
+
+activate_tag() {
+	[ $F_VERBOSE -gt 0 ] && echo ">>> activating tag"
+	if [ -f $TMPDIR/tag.$O_IF.$O_ACTIVATE ]
+	then
+		cat $TMPDIR/tag.$O_IF.$O_ACTIVATE > $TMPDIR/$O_IF.active
+		F_NETSTART=1
+	else
+		echo "tag not found"
+	fi
+}
+
+disable_if() {
+	[ $F_VERBOSE -gt 0 ] && echo ">>> clearing active config"
+	echo "" > $TMPDIR/$O_IF.active
+}
+
+#XXX: does not cope with nwids with whitespace
+connect_best_nw() {
+	local _nwid
+	[ $F_VERBOSE -gt 0 ] && echo ">>> searching best network"
+	ifconfig $O_IF scan > $TMPDIR/$O_IF.scan
+	grep chan $TMPDIR/$O_IF.scan > $TMPDIR/$O_IF.nws
+	sort -b -k 7 $TMPDIR/$O_IF.nws | awk '{print $2}' | uniq > $TMPDIR/$O_IF.best
+	while read _nwid
+	do
+		grep "nwid*.$_nwid" $ETCDIR/hostname.$O_IF | cut -d ':' -f 1 | tr -d '#' > $TMPDIR/$O_IF.found
+		if [ -s $TMPDIR/$O_IF.found ]
+		then
+			O_ACTIVATE=$(cat $TMPDIR/$O_IF.found)
+			[ $F_VERBOSE -gt 0 ] && echo ">>> best nwid found: $O_ACTIVATE"
+			F_NETSTART=1
+			activate_tag
+			break
+		fi
+	done < $TMPDIR/$O_IF.best
+}
+
+write_config() {
+	local _device
+	local _tag
+	local _line
+
+	while read _device
+	do
+		cat $TMPDIR/$_device.active > $TMPDIR/$_device.new
+		while read _tag
+		do
+			while read _line
+			do
+				echo "#$_tag:$_line" >> $TMPDIR/$_device.new
+			done < $TMPDIR/tag.$_device.$_tag
+		done < $TMPDIR/$_device.tags
+	done < $TMPDIR/devices
+
+	[ $F_VERBOSE -gt 0 ] && ( echo -n ">>> writing config"; [ $F_NOT -eq 0 ] && echo "" || echo " - disabled" )
+	
+	while read _device
+	do
+		[ $F_VERBOSE -gt 0 ] && diff -u $ETCDIR/hostname.$_device $TMPDIR/$_device.new
+		[ $F_NOT -eq 0 ] && cat $TMPDIR/$_device.new > $ETCDIR/hostname.$_device
+	done < $TMPDIR/devices
+}
+
+run_netstart() {
+	if [ $F_NETSTART -eq 1 ]
+	then
+		[ $F_VERBOSE -gt 0 ] && ( echo -n ">>> netstart"; [ $F_NOT -eq 0 ] && echo "" || echo " - disabled" )
+		[ $F_NOT -eq 0 ] && sh /etc/netstart $O_IF
+	fi
+}
+
+clean_up() {
+	local _clean
+	local _cleanlen
+
+	_clean="$TMPDIR"
+	_cleanlen="${#TMPDIR}"
+
+	[ $F_VERBOSE -gt 0 ] && echo ">>> cleaning tmp"
+	#sanity
+	if [ -d "$_clean" -a "$_cleanlen" -eq "21" ]
+	then
+		rm -rf "$_clean"
+	fi
+
+	exit
+}
+
+show_usage() {
+	echo "usage: nwctl [-bhlnvx] [-adt tag] [-i if]"
+	if [ $F_HELP -gt 0 ]
+	then
+		cat << EOF
+-a   activate tag
+-t   add or edit tag
+-d   delete tag
+-b   select best nwid
+-x   disable interface
+-i   interface
+-l   show config
+-h   show help
+-v   verbose output
+-n   dry run
+EOF
+	fi
+}
+
+trap clean_up EXIT
+trap clean_up INT
+
+parse_opt $*
+init_state
+main_switch
+write_config
+run_netstart
+exit 0
+
