@@ -1,6 +1,5 @@
-#!/bin/ksh -e
+#!/bin/ksh
 ETCDIR="/etc"
-#ETCDIR="~/Projects/hostnamed/etc"
 TMPDIR=$(mktemp -d /tmp/nwctl.XXXXXXXXXX) || exit 2
 O_ACTIVATE=0
 O_ADD=0
@@ -222,8 +221,6 @@ clean_up() {
 	then
 		rm -rf "$_clean"
 	fi
-
-	exit
 }
 
 show_usage() {
