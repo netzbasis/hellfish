@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/ksh -e
 ETCDIR="/etc"
 #ETCDIR="~/Projects/hostnamed/etc"
 TMPDIR=$(mktemp -d /tmp/nwctl.XXXXXXXXXX) || exit 2
@@ -6,20 +6,21 @@ O_ACTIVATE=0
 O_ADD=0
 O_DEL=0
 O_IF=0
-F_LIST=0
 F_BEST=0
-F_VERBOSE=0
-F_NOT=0
+F_CONFIG_ONLY=0
 F_DISABLE=0
 F_HELP=0
+F_LIST=0
 F_NETSTART=0
+F_NOT=0
+F_VERBOSE=0
 
 #$* all options
 parse_opt() {
 	local _args
 	
 	[ $# -eq 0 ] && show_usage && exit 1
-	_args=$(getopt a:bd:hi:lnt:vx $*)
+	_args=$(getopt a:bcd:hi:lnt:vx $*)
 	[ $? -ne 0 ] && show_usage && exit 1
 	set -- $_args
 	while [ $# -ne 0 ]
@@ -30,6 +31,8 @@ parse_opt() {
 				O_ACTIVATE="$2"; shift; shift;;
 			-b)
 				F_BEST=1; shift;;
+			-c)
+				F_CONFIG_ONLY=1; shift;;
 			-d)
 				O_DEL="$2"; shift; shift;;
 			-h)
@@ -147,7 +150,8 @@ activate_tag() {
 
 disable_if() {
 	[ $F_VERBOSE -gt 0 ] && echo ">>> clearing active config"
-	echo "" > $TMPDIR/$O_IF.active
+	echo "down" > $TMPDIR/$O_IF.active
+	F_NETSTART=1
 }
 
 #XXX: does not cope with nwids with whitespace
@@ -164,8 +168,8 @@ connect_best_nw() {
 		then
 			O_ACTIVATE=$(cat $TMPDIR/$O_IF.found)
 			[ $F_VERBOSE -gt 0 ] && echo ">>> best nwid found: $O_ACTIVATE"
-			F_NETSTART=1
 			activate_tag
+			F_NETSTART=1
 			break
 		fi
 	done < $TMPDIR/$O_IF.best
@@ -198,9 +202,9 @@ write_config() {
 }
 
 run_netstart() {
-	if [ $F_NETSTART -eq 1 ]
+	if [ $F_NETSTART -eq 1 -a $F_CONFIG_ONLY -eq 0 ]
 	then
-		[ $F_VERBOSE -gt 0 ] && ( echo -n ">>> netstart"; [ $F_NOT -eq 0 ] && echo "" || echo " - disabled" )
+		[ $F_VERBOSE -gt 0 ] && ( echo -n ">>> running netstart"; [ $F_NOT -eq 0 ] && echo "" || echo " - disabled" )
 		[ $F_NOT -eq 0 ] && sh /etc/netstart $O_IF
 	fi
 }
@@ -223,7 +227,7 @@ clean_up() {
 }
 
 show_usage() {
-	echo "usage: nwctl [-bhlnvx] [-adt tag] [-i if]"
+	echo "usage: nwctl [-bchlnvx] [-adt tag] [-i if]"
 	if [ $F_HELP -gt 0 ]
 	then
 		cat << EOF
@@ -232,6 +236,7 @@ show_usage() {
 -d   delete tag
 -b   select best nwid
 -x   disable interface
+-c   config change only
 -i   interface
 -l   show config
 -h   show help
