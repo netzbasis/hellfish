@@ -194,7 +194,7 @@ clean_up() {
 
 	vprint "cleaning tmp"
 	#sanity
-	if [ -d "$_clean" -a "$_cleanlen" -eq "21" ]
+	if [ -d "$_clean" -a "$_cleanlen" -ge "20" ]
 	then
 		rm -rf "$_clean"
 	fi
