@@ -101,7 +101,7 @@ show_config() {
 
 add_tag() {
 	vprint "adding tag"
-	$EDITOR $TMPDIR/tag.$O_IF.$O_ADD
+	${VISUAL:-${EDITOR:-vi}} $TMPDIR/tag.$O_IF.$O_ADD
 	echo $O_ADD >> $TMPDIR/$O_IF.tags
 	sort $TMPDIR/$O_IF.tags | uniq > $TMPDIR/$O_IF.tags.uniq
 	mv $TMPDIR/$O_IF.tags.uniq $TMPDIR/$O_IF.tags
