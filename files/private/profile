@@ -59,6 +59,7 @@ alias t="mixerctl outputs.master.mute=toggle"
 alias r="mixerctl outputs.master=100"
 
 bind -m '^L'='^C'clear'^J'
+stty kerninfo status ^T
 
 setup
 export PS1='${HOSTNAME} | ${PWD} $(git_branch) $(return_value)
