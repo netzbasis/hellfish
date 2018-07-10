@@ -116,52 +116,7 @@ hf_info() {
 # $1 download all packages/download from http flag
 hf_pkg_upgrade() {
 	dpush "pkg_upgrade"
-#	if [ -n "${PKG_CACHE}" ]
-#	then
-#		hf__command "./" "$DOAS ftp -o ${PKG_CACHE}/index.html ${PKG_HTTP_DIR}"
-#		hf__command "./" "pkg_info | cut -f 1 -d \" \" > ${PKG_CACHE}/pkgs.txt"
-#		[ "x$1" = "x-h" ] && export PKG_PATH="$PKG_CACHE:$PKG_HTTP_DIR"
-#		while read line
-#		do
-#			grep "$line" ${PKG_CACHE}/index.html >/dev/null
-#			[ $? -eq 1 -o "x$1" = "x-d" ] && hf_download_pkg "${line%-*}"
-#		done < ${PKG_CACHE}/pkgs.txt
-#
-#		echo -n "waiting on downloads"
-#		# spin until download are finished
-#		DL_COUNT=$(jobs | wc -l)
-#		while [ $DL_COUNT -gt 0 ]
-#		do
-#			sleep 1
-#			DL_COUNT=$(jobs | wc -l)
-#		done
-#		echo " done"
-#	fi
-
 	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
-	dpop
-}
-
-# $1 pkg to download
-hf_download_pkg() {
-	dpush "download_pkg" 
-	TMP_NAME=$(grep ${1} ${PKG_CACHE}/index.html)
-	TMP_NAME2=$(echo "$TMP_NAME" | cut -f 2 -d ">" | cut -f 1 -d "<")
-	TMP_NAME3=$(grep ${1} ${PKG_CACHE}/pkgs.txt)
-	if [ -n "$TMP_NAME2" ]
-	then
-		# spin until download slots are available
-		DL_COUNT=$(jobs | wc -l)
-		while [ $DL_COUNT -ge 4 ]
-		do
-			sleep 1 
-			DL_COUNT=$(jobs | wc -l)	
-		done
-		
-		echo -n .
-		# spawn in background
-		ftp -VM -o "${PKG_CACHE}/${TMP_NAME2}" ${PKG_HTTP_DIR}${TMP_NAME2}&
-	fi
 	dpop
 }
 
@@ -427,13 +382,6 @@ HFTEMPDATE=$HFTEMP/$FORMATEDDATE
 COLOR1=$(./files/scripts/TerminalColorEscapes.sh red - bold)
 COLOR2=$(./files/scripts/TerminalColorEscapes.sh magenta)
 COLORR=$(./files/scripts/TerminalColorEscapes.sh reset)
-if [ -d "$PKG_CACHE" ]
-then
-	export PKG_HTTP_DIR="${PKG_INSTALLURL}/snapshots/packages/${ARCH}/"
-#	export PKG_PATH="$PKG_CACHE"
-else
-	unset PKG_CACHE
-fi
 __start_timer
 
 hf_show_signify_key
