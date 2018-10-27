@@ -113,7 +113,6 @@ hf_info() {
 	dpop
 }
 
-# $1 download all packages/download from http flag
 hf_pkg_upgrade() {
 	dpush "pkg_upgrade"
 	hf__command "./" "$DOAS pkg_add -uV -Dsnap"
@@ -136,7 +135,7 @@ hf_reset() {
 	dpop
 }
 
-# $1 delete flag
+# $1 delete flag OR pull first flag
 hf_recreate_exp_branch() {
 	dpush "recreate_exp_branch"
 	[ "x$1" = "x-p" ] && hf_pull
@@ -288,7 +287,7 @@ hf_upgrade() {
 	dpop
 }
 
-# $1 auto_upgrade flag  $2 download sets flag
+# $1 auto_upgrade flag $2 download sets flag
 hf_download_bsdrd() {
 	dpush "download_bsdrd"
 	A=""
