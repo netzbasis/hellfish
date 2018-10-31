@@ -1,7 +1,7 @@
 #!/bin/sh
 #Create encapsulated users via useradd(8)
 #Setup home dir files, groups, and permissions
-#    Example: .aucat_cookie, .config/,
+#    Example: .sndio/cookie, .config/,
 #    read perm on /home/*, rw perm on /dev/drm*
 #Setup /etc/doas.conf
 #    Example: permit nopass ben as enc
