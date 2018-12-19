@@ -13,7 +13,7 @@ hf_main() {
 		cvsync|cs) hf_cvsync "$2" "$3";;
 		pull) hf_pull;;
 		push) hf_push;;
-		kernel|ke) hf_make_kernel "$2";;
+		kernel|ke) hf_make_kernel "$2" "$3";;
 		userland|us) hf_make_build;;
 		xenocara|xe) hf_make_xenocara;;
 		release|re) hf_make_release;;
@@ -40,6 +40,7 @@ usage: $0 <command> [option] "input"
 available commands (aliases)
 kernel (ke): build kernel
 	[-i] install
+	[-n] <name> name extention (/bsd.test1)
 userland (us): build userland
 xenocara (xe): build xenocara
 release (re): build release
@@ -217,6 +218,7 @@ hf_make_kernel() {
 	[ -f ${HELLFILE} ] && cp ${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL/version ${HFTEMP}/version
 
 	[ "x$1" = "x-i" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL" "$DOAS make install"
+	[ "x$1" = "x-n" ] && hf__command "${BSDSRCDIR}/sys/arch/${ARCH}/compile/$KERNEL/obj" "$DOAS install -m600 -oroot -gwheel bsd /bsd.$2"
 	dpop
 }
 
