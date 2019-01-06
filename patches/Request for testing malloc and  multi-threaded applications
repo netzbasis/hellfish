@@ -1,0 +1,333 @@
+Return-Path: <owner-tech+M68218=programmer=netzbasis.de@openbsd.org>
+Delivered-To: programmer@netzbasis.de
+Received: from lists.openbsd.org (lists.openbsd.org [192.43.244.163])
+	by pico.netzbasis.de (OpenSMTPD) with ESMTPS id 43ac5e94 (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256:NO)
+	for <programmer@netzbasis.de>;
+	Wed, 19 Dec 2018 10:52:15 +0100 (CET)
+Received: from openbsd.org (localhost [127.0.0.1])
+	by lists.openbsd.org (OpenSMTPD) with ESMTP id 21379ee3
+	for <programmer@netzbasis.de>;
+	Wed, 19 Dec 2018 02:50:14 -0700 (MST)
+Received: from mini.drijf.net (mx2.drijf.net [80.101.204.214])
+	by lists.openbsd.org (OpenSMTPD) with ESMTPS id 58f5708d (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO)
+	for <tech@openbsd.org>;
+	Wed, 19 Dec 2018 02:50:08 -0700 (MST)
+Received: from mini.drijf.net (localhost [127.0.0.1])
+	by mini.drijf.net (OpenSMTPD) with ESMTP id a7db2e63
+	for <tech@openbsd.org>;
+	Wed, 19 Dec 2018 10:52:04 +0100 (CET)
+Received: from clue.drijf.net (clue.drijf.net [94.142.244.34])
+	by mx2.drijf.net (OpenSMTPD) with ESMTPSA id b44df684 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO)
+	for <tech@openbsd.org>;
+	Wed, 19 Dec 2018 10:52:04 +0100 (CET)
+Date: Wed, 19 Dec 2018 10:52:03 +0100
+From: Otto Moerbeek <otto@drijf.net>
+To: tech@openbsd.org
+Subject: Request for testing malloc and  multi-threaded applications
+Message-ID: <20181219095203.GK95064@clue.drijf.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+User-Agent: Mutt/1.11.1 (2018-12-01)
+List-Help: <mailto:majordomo@openbsd.org?body=help>
+List-ID: <tech.openbsd.org>
+List-Owner: <mailto:owner-tech@openbsd.org>
+List-Post: <mailto:tech@openbsd.org>
+List-Subscribe: <mailto:majordomo@openbsd.org?body=sub%20tech>
+List-Unsubscribe: <mailto:majordomo@openbsd.org?body=unsub%20tech>
+X-Loop: tech@openbsd.org
+Precedence: list
+Sender: owner-tech@openbsd.org
+
+Hi,
+
+This diff implements a more flexible approach for the number of pools
+malloc uses in the multi-threaded case. At the momemt I do not intend
+to commit this as-is, I first need this to get some feedback on what
+the proper default should be.
+
+Currently the number of pools is fixed at 4. More pools mean less
+contention for allocations, but free becomes more expensive since a
+thread might need to check other pools increasing contention.
+
+I'd like to know how this diff behaves using your favorite
+mutli-threaded application. Often this will be a web-browser I guess.
+
+Test instructions:
+
+0. Make sure you are running current.
+
+1. Do a baseline test of your application.
+
+2. Apply diff, build and install userland.
+
+3. Run your test application with MALLOC_OPTIONS=value, where value is: 
+"", +, -, ++, -- and +++.
+
+e.g. 
+
+	MALLOC_OPTIONS=++ chrome
+
+Note performance. Do multiple tests to get better statistics.
+
+If you're not able to do full tests, at least general observations are
+welcome. Tell a bit about the system you tested on (e.g. number of
+cores). Note that due to randomization, different runs might show
+different performance numbers since the pools shared by subsets of
+threads can turn out differently.
+
+Thanks,
+
+	-Otto
+
+Index: include/thread_private.h
+===================================================================
+RCS file: /cvs/src/lib/libc/include/thread_private.h,v
+retrieving revision 1.33
+diff -u -p -r1.33 thread_private.h
+--- include/thread_private.h	5 Dec 2017 13:45:31 -0000	1.33
++++ include/thread_private.h	19 Dec 2018 06:52:07 -0000
+@@ -7,7 +7,7 @@
+ 
+ #include <stdio.h>		/* for FILE and __isthreaded */
+ 
+-#define _MALLOC_MUTEXES 4
++#define _MALLOC_MUTEXES 32
+ void _malloc_init(int);
+ #ifdef __LIBC__
+ PROTO_NORMAL(_malloc_init);
+Index: stdlib/malloc.c
+===================================================================
+RCS file: /cvs/src/lib/libc/stdlib/malloc.c,v
+retrieving revision 1.257
+diff -u -p -r1.257 malloc.c
+--- stdlib/malloc.c	10 Dec 2018 07:57:49 -0000	1.257
++++ stdlib/malloc.c	19 Dec 2018 06:52:07 -0000
+@@ -143,6 +143,8 @@ struct dir_info {
+ 	size_t cheap_reallocs;
+ 	size_t malloc_used;		/* bytes allocated */
+ 	size_t malloc_guarded;		/* bytes used for guards */
++	size_t pool_searches;		/* searches for pool */
++	size_t other_pool;		/* searches in other pool */
+ #define STATS_ADD(x,y)	((x) += (y))
+ #define STATS_SUB(x,y)	((x) -= (y))
+ #define STATS_INC(x)	((x)++)
+@@ -179,7 +181,9 @@ struct chunk_info {
+ };
+ 
+ struct malloc_readonly {
+-	struct dir_info *malloc_pool[_MALLOC_MUTEXES];	/* Main bookkeeping information */
++					/* Main bookkeeping information */
++	struct dir_info *malloc_pool[_MALLOC_MUTEXES];
++	u_int	malloc_mutexes;		/* how much in actual use? */
+ 	int	malloc_mt;		/* multi-threaded mode? */
+ 	int	malloc_freecheck;	/* Extensive double free check */
+ 	int	malloc_freeunmap;	/* mprotect free pages PROT_NONE? */
+@@ -267,7 +271,7 @@ getpool(void)
+ 		return mopts.malloc_pool[0];
+ 	else
+ 		return mopts.malloc_pool[TIB_GET()->tib_tid &
+-		    (_MALLOC_MUTEXES - 1)];
++		    (mopts.malloc_mutexes - 1)];
+ }
+ 
+ static __dead void
+@@ -316,6 +320,16 @@ static void
+ omalloc_parseopt(char opt)
+ {
+ 	switch (opt) {
++	case '+':
++		mopts.malloc_mutexes <<= 1;
++		if (mopts.malloc_mutexes > _MALLOC_MUTEXES)
++			mopts.malloc_mutexes = _MALLOC_MUTEXES;
++		break;
++	case '-':
++		mopts.malloc_mutexes >>= 1;
++		if (mopts.malloc_mutexes < 1)
++			mopts.malloc_mutexes = 1;
++		break;
+ 	case '>':
+ 		mopts.malloc_cache <<= 1;
+ 		if (mopts.malloc_cache > MALLOC_MAXCACHE)
+@@ -395,6 +409,7 @@ omalloc_init(void)
+ 	/*
+ 	 * Default options
+ 	 */
++	mopts.malloc_mutexes = 4;
+ 	mopts.malloc_junk = 1;
+ 	mopts.malloc_cache = MALLOC_DEFAULT_CACHE;
+ 
+@@ -485,7 +500,7 @@ omalloc_poolinit(struct dir_info **dp)
+ 		for (j = 0; j < MALLOC_CHUNK_LISTS; j++)
+ 			LIST_INIT(&d->chunk_dir[i][j]);
+ 	}
+-	STATS_ADD(d->malloc_used, regioninfo_size);
++	STATS_ADD(d->malloc_used, regioninfo_size + 3 * MALLOC_PAGESIZE);
+ 	d->canary1 = mopts.malloc_canary ^ (u_int32_t)(uintptr_t)d;
+ 	d->canary2 = ~d->canary1;
+ 
+@@ -1196,7 +1211,7 @@ _malloc_init(int from_rthreads)
+ 	if (!mopts.malloc_canary)
+ 		omalloc_init();
+ 
+-	max = from_rthreads ? _MALLOC_MUTEXES : 1;
++	max = from_rthreads ? mopts.malloc_mutexes : 1;
+ 	if (((uintptr_t)&malloc_readonly & MALLOC_PAGEMASK) == 0)
+ 		mprotect(&malloc_readonly, sizeof(malloc_readonly),
+ 		    PROT_READ | PROT_WRITE);
+@@ -1281,16 +1296,19 @@ findpool(void *p, struct dir_info *argpo
+ 	struct dir_info *pool = argpool;
+ 	struct region_info *r = find(pool, p);
+ 
++	STATS_INC(pool->pool_searches);
+ 	if (r == NULL) {
+ 		if (mopts.malloc_mt)  {
+ 			int i;
+ 
+-			for (i = 0; i < _MALLOC_MUTEXES; i++) {
+-				if (i == argpool->mutex)
+-					continue;
++			STATS_INC(pool->other_pool);
++			for (i = 1; i < mopts.malloc_mutexes; i++) {
++				int j = (argpool->mutex + i) &
++				    (mopts.malloc_mutexes - 1);
++
+ 				pool->active--;
+ 				_MALLOC_UNLOCK(pool->mutex);
+-				pool = mopts.malloc_pool[i];
++				pool = mopts.malloc_pool[j];
+ 				_MALLOC_LOCK(pool->mutex);
+ 				pool->active++;
+ 				r = find(pool, p);
+@@ -2220,14 +2238,13 @@ malloc_dump1(int fd, int poolno, struct 
+ 		return;
+ 	dprintf(fd, "Region slots free %zu/%zu\n",
+ 		d->regions_free, d->regions_total);
+-	dprintf(fd, "Finds %zu/%zu\n", d->finds,
+-	    d->find_collisions);
+-	dprintf(fd, "Inserts %zu/%zu\n", d->inserts,
+-	    d->insert_collisions);
+-	dprintf(fd, "Deletes %zu/%zu\n", d->deletes,
+-	    d->delete_moves);
++	dprintf(fd, "Finds %zu/%zu\n", d->finds, d->find_collisions);
++	dprintf(fd, "Inserts %zu/%zu\n", d->inserts, d->insert_collisions);
++	dprintf(fd, "Deletes %zu/%zu\n", d->deletes, d->delete_moves);
+ 	dprintf(fd, "Cheap reallocs %zu/%zu\n",
+ 	    d->cheap_reallocs, d->cheap_realloc_tries);
++	dprintf(fd, "Other pool searches %zu/%zu\n",
++	    d->other_pool, d->pool_searches);
+ 	dprintf(fd, "In use %zu\n", d->malloc_used);
+ 	dprintf(fd, "Guarded %zu\n", d->malloc_guarded);
+ 	dump_free_chunk_info(fd, d);
+@@ -2289,7 +2306,7 @@ malloc_gdump(int fd)
+ 	int i;
+ 	int saved_errno = errno;
+ 
+-	for (i = 0; i < _MALLOC_MUTEXES; i++)
++	for (i = 0; i < mopts.malloc_mutexes; i++)
+ 		malloc_dump(fd, i, mopts.malloc_pool[i]);
+ 
+ 	errno = saved_errno;
+@@ -2305,15 +2322,15 @@ malloc_exit(void)
+ 	if (fd != -1) {
+ 		dprintf(fd, "******** Start dump %s *******\n", __progname);
+ 		dprintf(fd,
+-		    "MT=%d I=%d F=%d U=%d J=%d R=%d X=%d C=%d cache=%u G=%zu\n",
+-		    mopts.malloc_mt, mopts.internal_funcs,
+-		    mopts.malloc_freecheck,
++		    "MT=%d M=%u I=%d F=%d U=%d J=%d R=%d X=%d C=%d cache=%u G=%zu\n",
++		    mopts.malloc_mt, mopts.mallloc_mutexes,
++		    mopts.internal_funcs, mopts.malloc_freecheck,
+ 		    mopts.malloc_freeunmap, mopts.malloc_junk,
+ 		    mopts.malloc_realloc, mopts.malloc_xmalloc,
+ 		    mopts.chunk_canaries, mopts.malloc_cache,
+ 		    mopts.malloc_guard);
+ 
+-		for (i = 0; i < _MALLOC_MUTEXES; i++)
++		for (i = 0; i < mopts.malloc_mutexes; i++)
+ 			malloc_dump(fd, i, mopts.malloc_pool[i]);
+ 		dprintf(fd, "******** End dump %s *******\n", __progname);
+ 		close(fd);
+Index: thread/rthread_libc.c
+===================================================================
+RCS file: /cvs/src/lib/libc/thread/rthread_libc.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 rthread_libc.c
+--- thread/rthread_libc.c	5 Sep 2017 02:40:54 -0000	1.2
++++ thread/rthread_libc.c	19 Dec 2018 06:52:07 -0000
+@@ -169,14 +169,69 @@ static struct pthread_mutex malloc_lock[
+ 	MALLOC_LOCK_INITIALIZER(0),
+ 	MALLOC_LOCK_INITIALIZER(1),
+ 	MALLOC_LOCK_INITIALIZER(2),
+-	MALLOC_LOCK_INITIALIZER(3)
++	MALLOC_LOCK_INITIALIZER(4),
++	MALLOC_LOCK_INITIALIZER(5),
++	MALLOC_LOCK_INITIALIZER(6),
++	MALLOC_LOCK_INITIALIZER(7),
++	MALLOC_LOCK_INITIALIZER(8),
++	MALLOC_LOCK_INITIALIZER(9),
++	MALLOC_LOCK_INITIALIZER(10),
++	MALLOC_LOCK_INITIALIZER(11),
++	MALLOC_LOCK_INITIALIZER(12),
++	MALLOC_LOCK_INITIALIZER(13),
++	MALLOC_LOCK_INITIALIZER(14),
++	MALLOC_LOCK_INITIALIZER(15),
++	MALLOC_LOCK_INITIALIZER(16),
++	MALLOC_LOCK_INITIALIZER(17),
++	MALLOC_LOCK_INITIALIZER(18),
++	MALLOC_LOCK_INITIALIZER(19),
++	MALLOC_LOCK_INITIALIZER(20),
++	MALLOC_LOCK_INITIALIZER(21),
++	MALLOC_LOCK_INITIALIZER(22),
++	MALLOC_LOCK_INITIALIZER(23),
++	MALLOC_LOCK_INITIALIZER(24),
++	MALLOC_LOCK_INITIALIZER(25),
++	MALLOC_LOCK_INITIALIZER(26),
++	MALLOC_LOCK_INITIALIZER(27),
++	MALLOC_LOCK_INITIALIZER(28),
++	MALLOC_LOCK_INITIALIZER(29),
++	MALLOC_LOCK_INITIALIZER(30),
++	MALLOC_LOCK_INITIALIZER(31)
+ };
+ 
+ static pthread_mutex_t malloc_mutex[_MALLOC_MUTEXES] = {
+ 	&malloc_lock[0],
+ 	&malloc_lock[1],
+ 	&malloc_lock[2],
+-	&malloc_lock[3]
++	&malloc_lock[3],
++	&malloc_lock[4],
++	&malloc_lock[5],
++	&malloc_lock[6],
++	&malloc_lock[7],
++	&malloc_lock[8],
++	&malloc_lock[9],
++	&malloc_lock[10],
++	&malloc_lock[11],
++	&malloc_lock[12],
++	&malloc_lock[13],
++	&malloc_lock[14],
++	&malloc_lock[15],
++	&malloc_lock[16],
++	&malloc_lock[17],
++	&malloc_lock[18],
++	&malloc_lock[19],
++	&malloc_lock[20],
++	&malloc_lock[21],
++	&malloc_lock[22],
++	&malloc_lock[23],
++	&malloc_lock[24],
++	&malloc_lock[25],
++	&malloc_lock[26],
++	&malloc_lock[27],
++	&malloc_lock[28],
++	&malloc_lock[29],
++	&malloc_lock[30],
++	&malloc_lock[31]
+ };
+ 
+ void
+
+
+
+
