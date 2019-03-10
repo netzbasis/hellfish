@@ -1,0 +1,20 @@
+#!/bin/sh
+TMPFILE=/tmp/pkg_ping.tmp
+SHATMP=/tmp/pkg_ping.sha
+
+if [ ! -f ${TMPFILE} ]
+then
+	ftp -o - http://www.openbsd.org/build/mirrors.dat |\
+	grep -e ^GZ -e ^UH |\
+	grep -B1 -e ^UH |\
+	grep -e ^GZ -e ^UH |\
+	cut -f 2- > ${TMPFILE}
+fi
+
+grep -A1 -e "^$1" ${TMPFILE} | grep http |\
+while read line
+do
+	echo trying ${line}
+	time ftp -o ${SHATMP} ${line}/snapshots/packages/amd64/SHA256
+done
+
