@@ -317,8 +317,9 @@ hf_auto_bsdrd() {
 	dpush "auto_bsdrd"
 	hf__command "$HFTEMPDATE" "mkdir root" 1
 	hf__command "$HFTEMPDATE" "cp bsd.rd bsd.rda"
-	hf__command "$HFDIR" "cc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
-	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -dx bsd.rda root.fs"
+### moved to base
+###	hf__command "$HFDIR" "cc -o rdsetroot src/distrib/common/elf{32,64,rdsetroot}.c"
+	hf__command "$HFTEMPDATE" "rdsetroot -dx bsd.rda root.fs"
 	hf__command "$HFTEMPDATE" "$DOAS vnconfig vnd3 root.fs"
 	hf__command "$HFTEMPDATE" "$DOAS mount /dev/vnd3a ./root"
 	hf__command "$HFTEMPDATE" "$DOAS cp $HFDIR/files/conf/auto_upgrade.$HOSTNAME ./root/auto_upgrade.conf"
@@ -328,7 +329,7 @@ hf_auto_bsdrd() {
 
 	hf__command "$HFTEMPDATE" "$DOAS umount /dev/vnd3a"
 	hf__command "$HFTEMPDATE" "$DOAS vnconfig -u vnd3"
-	hf__command "$HFTEMPDATE" "$HFDIR/rdsetroot -d bsd.rda root.fs"
+	hf__command "$HFTEMPDATE" "rdsetroot -d bsd.rda root.fs"
 	dpop
 }
 
