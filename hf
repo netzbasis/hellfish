@@ -20,8 +20,8 @@ hf_main() {
 		hellfish|hf) hf_recreate_exp_branch "$2";;
 		merge) hf_merge_master_into_branch;;
 		cmd) hf_command "$2";;
-		clean|cl) hf_clean "$2";;
-		reset|re) hf_reset "$2";;
+		clean) hf_clean "$2";;
+		reset) hf_reset "$2";;
 		bsd.rd|rd) hf_download_bsdrd "$2" "$3" "$4";;
 		upgrade|up) hf_upgrade "$2" "$3";;
 		package|pkg) hf_pkg_upgrade "$2";;
@@ -58,9 +58,9 @@ hellfish (hf): recreate experimental branch
 	[-p] pull first
 	[-d] delete experimental branch
 merge: merge master into hf-* branches
-clean (cl): clean untracked files
+clean: clean untracked files
 	[-a] also clean hellfish repo
-reset (re): reset uncommited changes
+reset: reset uncommited changes
 	[-a] also reset hellfish repo
 pull: pull all git repos
 push: push all git repos
