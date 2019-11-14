@@ -243,7 +243,7 @@ hf_pull() {
 # $1 sync git $2 push
 hf_cvsync() {
 	dpush "cvsync"
-	hf__command "./" "cvsync -c $CVSYNCCONF >> $CVSYNC_LOG_FILE"
+	hf__command "./" "reposync $REPOSYNCSERVER /cvs >> $CVSYNC_LOG_FILE"
 
 	if [ "x$1" == "x-g" ]
 	then
