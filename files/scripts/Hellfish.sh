@@ -11,13 +11,13 @@ cd $WDIR
 mkdir root
 echo extracting base
 doas tar -zxphf ../tmp/last/base*.tgz -C root
-doas tar -zxphf ../tmp/last/comp*.tgz -C root
-doas tar -zxphf ../tmp/last/man*.tgz -C root
-doas tar -zxphf ../tmp/last/game*.tgz -C root
-doas tar -zxphf ../tmp/last/xbase*.tgz -C root
-doas tar -zxphf ../tmp/last/xfont*.tgz -C root
-doas tar -zxphf ../tmp/last/xserv*.tgz -C root
-doas tar -zxphf ../tmp/last/xshare*.tgz -C root
+#doas tar -zxphf ../tmp/last/comp*.tgz -C root
+#doas tar -zxphf ../tmp/last/man*.tgz -C root
+#doas tar -zxphf ../tmp/last/game*.tgz -C root
+#doas tar -zxphf ../tmp/last/xbase*.tgz -C root
+#doas tar -zxphf ../tmp/last/xfont*.tgz -C root
+#doas tar -zxphf ../tmp/last/xserv*.tgz -C root
+#doas tar -zxphf ../tmp/last/xshare*.tgz -C root
 
 echo creating image files
 dd if=/dev/zero of=rd.raw bs=512 count=$RDSIZE
@@ -37,6 +37,7 @@ doas mkdir var
 doas mkdir usr
 doas chmod 755 var
 doas chmod 755 usr
+doas touch etc/fstab
 cd /mnt/dev
 doas sh ./MAKEDEV all 
 cd $SDIR/$WDIR
