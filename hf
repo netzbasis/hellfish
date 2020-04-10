@@ -73,6 +73,12 @@ hf_run() {
 	dpop
 }
 
+hf_funcdump() {
+	dpush "funcdump"
+	hf__command "$HFTEMP" "$DOAS ctfdump -f /bsd | awk '{ print \$3 }' | sort > func.$FORMATEDDATE"
+	dpop
+}
+
 # $1 cmd, $2 max_return_status
 hf_command() {
 	dpush "command"
