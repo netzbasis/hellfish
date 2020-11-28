@@ -1,0 +1,75 @@
+#!/bin/ksh
+TMPDIR=$(mktemp -d /tmp/ytdcli.XXXXXXXXXX) || exit 2
+RUN=1
+RET=0
+
+main_loop() {
+	local _url
+	local _num
+	local _input
+	local _jobs
+	local _duplicate
+
+	touch $TMPDIR/queue
+	_num=1
+
+	while [ $RUN -eq 1 ]; do
+		clear
+		_jobs=$( jobs | wc -l )
+		_url=$( xclip -o | head -n 1 | grep http )
+
+		echo "YouTube-DL interactive cli - copy URL then press Enter"
+		echo "Background jobs: $_jobs"
+
+		if [ -n "$_url" ]; then
+			_duplicate=$( grep -c "$_url" $TMPDIR/queue )
+			if [ $_duplicate -eq 0 ]; then
+				echo "$_url" >> $TMPDIR/queue
+				echo "Adding job: $_url" 
+				youtube-dl "$_url" 2>&1 >$TMPDIR/$_num.log &
+				_num=$(( $_num + 1 ))
+			else
+				echo "Already downloading"
+			fi
+		else
+			echo "Wrong format"
+		fi
+		echo ""
+		tail -n 1 $TMPDIR/*.log >$TMPDIR/speed 2>/dev/null
+		grep -v "100%" $TMPDIR/speed
+		read _input
+	done
+}
+
+wait_for_downloads() {
+	echo ""
+	echo "Waiting on jobs before shutdown"
+	wait
+	RET=$?
+}
+
+stop_loop() {
+	RUN=0
+}
+
+clean_up() {
+	local _clean
+	local _cleanlen
+
+	_clean="$TMPDIR"
+	_cleanlen="${#TMPDIR}"
+
+	#sanity
+	if [ -d "$_clean" -a "$_cleanlen" -eq "22" ]; then
+		rm -rf "$_clean"
+	fi
+}
+
+trap stop_loop EXIT
+trap stop_loop INT
+trap stop_loop HUP
+
+main_loop
+wait_for_downloads
+clean_up
+exit $RET

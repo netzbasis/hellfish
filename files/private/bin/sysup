@@ -1,0 +1,11 @@
+#!/bin/sh -e
+ID=$(id -u)
+FOLDER=/home/_sysupgrade
+DATE=$(date +%Y-%m-%d)
+
+[ $ID -ne 0 ] && echo must be root && exit 1
+cd $FOLDER
+mkdir ../_$DATE
+find ./ -type f -exec mv {} ../_$DATE/. \;
+sysupgrade -kns
+[ "x$1" == "xreboot" ] && reboot

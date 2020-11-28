@@ -1,0 +1,29 @@
+#!/bin/sh
+case $1 in
+diff)
+	[ -z $2 ] && echo missing name && exit 1
+	cvs -q diff >> /home/ben/Patches/$2.diff
+	;;
+sync)
+	reposync rsync://ftp.hostserver.de/cvs/ /var/cvs
+	;;
+syncup)
+	reposync rsync://ftp.hostserver.de/cvs/ /var/cvs
+	for cvdir in /usr/src /usr/xenocara /usr/ports /var/www/htdocs/www
+	do
+		cd $cvdir && cvs -q up -Pd -A
+	done
+	;;
+up)
+	cvs -q up -Pd -A
+	;;
+reset)
+	DELF=$(cvs -q up -Pd -A | grep "^M" | cut -d" " -f2)
+	[ -z $DELF ] && echo nothing to reset && exit 0 
+	rm $DELF
+	cvs -q up -Pd -A
+	;;
+*)
+	echo 'usage: cv [diff <name>|sync|syncup|up|reset]' && exit 1
+	;;
+esac

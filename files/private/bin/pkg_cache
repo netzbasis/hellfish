@@ -1,0 +1,15 @@
+#!/bin/sh
+case $1 in
+clean)
+	doas rm /var/cache/pkg_add/*
+	;;
+sync)
+	doas env PKG_CACHE=/var/cache/pkg_add pkg_add -un -Dsnap
+	;;
+up)
+	doas env PKG_PATH=/var/cache/pkg_add pkg_add -u -Dsnap
+	;;
+*)
+	echo 'usage: pkg_cache [clean|sync|up]' && exit 1
+	;;
+esac

@@ -1,0 +1,32 @@
+#!/bin/sh
+APP=/usr/X11R6/bin/xlock
+TIMO=120
+ 
+xlock_save() {
+	$APP &
+	ps -p $! >/dev/null
+	if [ $? -ne 0 ] 
+	then
+		echo xlk.err=$APP not running >> /dev/console
+		exit 1
+	fi
+}
+
+export DISPLAY=:0
+if [ "x$1" == "xmute" ]
+then
+	xlock_save
+	sndioctl output.mute=1 >> /dev/console
+elif [ "x$1" == "xzzz" ]
+then
+	xlock_save
+	zzz
+elif [ "x$1" == "xlock" ]
+then
+	xlock_save
+else
+	echo xlk.timeout=$TIMO >> /dev/console
+	echo xlk.app=$APP >> /dev/console
+	/usr/X11R6/bin/xidle -program "$0 mute" -timeout $TIMO
+fi
+
