@@ -1,5 +1,9 @@
 Codename Hellfish
 =================
+
+UPDATE Jan 2021
+Superseded by official OpenBSD git mirror, syspatch(8), sysupgrade(8)
+
 OpenBSD source code from cvs put into git.
 Uploaded for my own use.
 If you want to use it go ahead, but don't expect support.
